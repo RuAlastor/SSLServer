@@ -3,6 +3,8 @@
 using namespace Sorokin;
 
 
+// MASTER SOCKET
+
 MasterSocket::MasterSocket(int port) noexcept : _ip(INADDR_LOOPBACK),
                                                 _port(port),
                                                 _masterSocket(-1) {}
@@ -54,13 +56,22 @@ int MasterSocket::Handle() noexcept(false) {
         std::cout << "Connection error!\n";
         return connectionError;
     }
-    SlaveSocket slaveSocketObj(slaveSocket, "/home/student/C++/localSignedXML.xml", nullptr, nullptr);
-    slaveSocketObj.Start();
+
+    SlaveSocket slaveSocketObj(slaveSocket,
+                               "/home/student/C++/localSignedXML.xml",
+                               nullptr,
+                               nullptr);
+    if (slaveSocketObj.Start()) {
+        return slaveSocketError;
+    }
+    if (slaveSocketObj.SignFile()) {
+        return slaveSocketError;
+    }
 
     return noError;
 }
 
-
+// SLAVE SOCKET
 
 SlaveSocket::SlaveSocket(int fd,
                          const char* filename,
@@ -88,6 +99,7 @@ int SlaveSocket::Start() noexcept {
 
     while (true) {
         int rResult = recv(_slaveSocket, buffer, sizeof(char) * 1024, 0);
+
         if (rResult == -1) {
             std::cout << "Connection stopped!\n";
             break;
@@ -96,9 +108,30 @@ int SlaveSocket::Start() noexcept {
             std::cout << "Got the document!\n";
             break;
         }
-        xmlWriter << buffer << std::endl;
-        memset(buffer, 0, sizeof(char) * 1024);
+        else {
+            xmlWriter << buffer << std::endl;
+            memset(buffer, 0, sizeof(char) * 1024);
+        }
     }
+
+    return noError;
+}
+
+int SlaveSocket::SignFile() noexcept(false) {
+    std::list<std::string> strsToSign;
+    Parser xmlParser(_filename, &strsToSign);
+    xmlParser.loadDocument();
+    if (xmlParser.parseDocument()) {
+        return parseError;
+    }
+    Signer signer("/home/student/C++/public_key", "/home/student/C++/private_key");
+    signer.GetAccess();
+    std::list<std::string> signedStrs;
+    for (const auto iter : strsToSign) {
+        signedStrs.push_back(signer.SignString(iter));
+    }
+
+    // Continue here
 
     return noError;
 }

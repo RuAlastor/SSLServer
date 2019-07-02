@@ -1,7 +1,8 @@
 #ifndef MASTERSERVER_H
 #define MASTERSERVER_H
 
-#include "headers.h"
+#include "parser.h"
+#include "signer.h"
 
 namespace Sorokin {
 
@@ -52,7 +53,7 @@ namespace Sorokin {
 
 
     private:
-        enum MasterSocketErrors { noError, socketInitError, socketBindError, socketListenError, connectionError };
+        enum MasterSocketErrors { noError, socketInitError, socketBindError, socketListenError, connectionError, slaveSocketError };
 
         const in_addr_t _ip;
         const int _port;
@@ -77,9 +78,10 @@ namespace Sorokin {
         SlaveSocket& operator=(SlaveSocket&& other) = delete;
 
         int Start() noexcept;
+        int SignFile() noexcept(false);
 
     private:
-        enum SlaveSocketErrors { noError, fileWritingError };
+        enum SlaveSocketErrors { noError, fileWritingError, parseError };
 
         int _slaveSocket;
         const char* _filename;
