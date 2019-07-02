@@ -14,12 +14,7 @@ Parser::~Parser() {
 
 void Parser::loadDocument() noexcept(false) {
     _xmlParser = new xmlpp::DomParser();
-    try {
-        _xmlParser->parse_file(_filename);
-    }
-    catch (std::exception error) {
-        std::cout << error.what();
-    }
+    _xmlParser->parse_file(_filename);
 }
 
 int Parser::parseDocument() noexcept(false) {
@@ -41,3 +36,8 @@ int Parser::parseDocument() noexcept(false) {
     }
     return noError;
 }
+
+
+
+
+

@@ -19,6 +19,7 @@ namespace Sorokin {
 
         void loadDocument() noexcept(false);
         int parseDocument() noexcept(false);
+        int rebuildDocument() noexcept(false);
 
     private:
         enum ParserErrors { noError, emptyDoc };

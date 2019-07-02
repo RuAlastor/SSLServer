@@ -60,6 +60,7 @@ int Client::Handle() noexcept(false) {
             xmlReader.close();
             return sendError;
         }
+        buffer.clear();
         std::getline(xmlReader, buffer);
     }
 

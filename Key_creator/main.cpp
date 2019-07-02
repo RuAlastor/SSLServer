@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 
     // Create RSA keys
     RSA* rsa = nullptr;
-    const unsigned int keyLength = 256;
+    const unsigned int keyLength = 1024;
     const unsigned long exponentPrime = RSA_F4;
     rsa = RSA_generate_key(keyLength, exponentPrime, NULL, NULL);
     if (rsa == NULL) {

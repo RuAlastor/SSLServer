@@ -49,7 +49,7 @@ int MasterSocket::Start() noexcept {
 }
 
 int MasterSocket::Handle() noexcept(false) {
-    std::cout << "Waiting for connection!\n"; //
+    std::cout << "Waiting for connection...\n";
 
     int slaveSocket = accept(_masterSocket, nullptr, nullptr);
     if (slaveSocket < 0) {
@@ -120,18 +120,31 @@ int SlaveSocket::Start() noexcept {
 int SlaveSocket::SignFile() noexcept(false) {
     std::list<std::string> strsToSign;
     Parser xmlParser(_filename, &strsToSign);
-    xmlParser.loadDocument();
+
+    try {
+        xmlParser.loadDocument();
+    }
+    catch (...) {
+        std::cout << "Document is fucked!\n";
+        return parseError;
+    }
+
     if (xmlParser.parseDocument()) {
         return parseError;
     }
+
     Signer signer("/home/student/C++/public_key", "/home/student/C++/private_key");
     signer.GetAccess();
-    std::list<std::string> signedStrs;
+
+    std::list<unsigned char*> signedStrs;
     for (const auto iter : strsToSign) {
+        // signer.SignString(iter);
         signedStrs.push_back(signer.SignString(iter));
     }
 
-    // Continue here
+    std::string publicKey = signer.GetPublicKey();
+
+
 
     return noError;
 }

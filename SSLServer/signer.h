@@ -19,7 +19,8 @@ namespace Sorokin {
         Signer& operator=(Signer&& other) = delete;
 
         void GetAccess() noexcept;
-        std::string SignString(const std::string& stringToSign) noexcept(false);
+        unsigned char* SignString(const std::string& stringToSign) noexcept(false);
+        std::string GetPublicKey() noexcept(false);
 
     private:
         const char* _publicLoc;
