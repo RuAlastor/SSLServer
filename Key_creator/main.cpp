@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     cipher = EVP_get_cipherbyname("bf-ofb");
 
     // Write keys to files
-    PEM_write_RSAPrivateKey(private_file, rsa, cipher, NULL, 0, NULL, const_cast<char*>(pwd.c_str()));
+    PEM_write_RSAPrivateKey(private_file, rsa, cipher, reinterpret_cast<unsigned char*>(const_cast<char*>(pwd.c_str())), pwd.size(), NULL, NULL);
     PEM_write_RSAPublicKey(public_file, rsa);
 
     // Clear memory

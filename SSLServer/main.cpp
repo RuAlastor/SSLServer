@@ -2,7 +2,8 @@
 
 int main() {
 
-    Sorokin::MasterSocket server(12344);
+    Sorokin::MasterSocket server(12345);
+    server.AskPwd();
     if (server.Start()) {
         return -1;
     }
