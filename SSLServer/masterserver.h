@@ -79,9 +79,10 @@ namespace Sorokin {
 
         int Start() noexcept;
         int SignFile() noexcept(false);
+        int SendBack() noexcept;
 
     private:
-        enum SlaveSocketErrors { noError, fileWritingError, parseError };
+        enum SlaveSocketErrors { noError, fileWritingError, parseError, acceptError, sendError };
 
         int _slaveSocket;
         const char* _filename;

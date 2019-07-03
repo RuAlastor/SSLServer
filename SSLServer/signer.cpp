@@ -54,7 +54,6 @@ std::string Signer::GetPublicKey() noexcept(false) {
         strBuffer.clear();
         std::getline(publicKeyFile, strBuffer);
     }
-    std::cout << publicKey << std::endl;
     return publicKey;
 }
 

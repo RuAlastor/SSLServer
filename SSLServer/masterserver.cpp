@@ -67,6 +67,9 @@ int MasterSocket::Handle() noexcept(false) {
     if (slaveSocketObj.SignFile()) {
         return slaveSocketError;
     }
+    if (slaveSocketObj.SendBack()) {
+        return slaveSocketError;
+    }
 
     return noError;
 }
@@ -89,7 +92,6 @@ SlaveSocket::~SlaveSocket() {
 int SlaveSocket::Start() noexcept {
     std::cout << "Got a connection!\n";
 
-    char buffer[1024];
     std::ofstream xmlWriter;
     xmlWriter.open(_filename);
     if (!xmlWriter.is_open()) {
@@ -97,22 +99,27 @@ int SlaveSocket::Start() noexcept {
         return fileWritingError;
     }
 
-    while (true) {
-        int rResult = recv(_slaveSocket, buffer, sizeof(char) * 1024, 0);
-
-        if (rResult == -1) {
-            std::cout << "Connection stopped!\n";
-            break;
-        }
-        if (rResult == 0) {
-            std::cout << "Got the document!\n";
-            break;
-        }
-        else {
-            xmlWriter << buffer << std::endl;
-            memset(buffer, 0, sizeof(char) * 1024);
-        }
+    char* buffer = new char[sizeof(int)];
+    int rResult = recv(_slaveSocket, buffer, sizeof(int), 0);
+    if (rResult <0) {
+        std::cout << "Failed to recieve message!\n";
+        return acceptError;
     }
+    int fileSize = 0;
+    memcpy(&fileSize, buffer, sizeof(int));
+    delete[] buffer;
+    buffer = new char[fileSize];
+    rResult = recv(_slaveSocket, buffer, fileSize, 0);
+    if (rResult <0) {
+        std::cout << "Failed to recieve message!\n";
+        return acceptError;
+    }
+
+    std::cout << "Got the document!\n";
+
+    xmlWriter << buffer << std::endl;
+    xmlWriter.close();
+    delete[] buffer;
 
     return noError;
 }
@@ -138,18 +145,55 @@ int SlaveSocket::SignFile() noexcept(false) {
 
     std::list<unsigned char*> signedStrs;
     for (const auto iter : strsToSign) {
-        // signer.SignString(iter);
         signedStrs.push_back(signer.SignString(iter));
     }
-
     std::string publicKey = signer.GetPublicKey();
 
+    xmlParser.rebuildDocument(signedStrs, publicKey);
 
-
+    for (const auto iter : signedStrs) {
+        delete[] iter;
+    }
     return noError;
 }
 
+int SlaveSocket::SendBack() noexcept {
+    // Check file
+    std::ifstream xmlReader;
+    xmlReader.open(_filename, std::ios_base::ate | std::ios_base::binary);
+    if (!xmlReader.is_open()) {
+        std::cout << "Failed to open file!\n";
+        return -1;
+    }
+    const int fileSize = xmlReader.tellg();
+    std::cout << fileSize << std::endl;
+    xmlReader.seekg(0, std::ios_base::beg);
 
+    // Send file to the server
+    int sResult = send(_slaveSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
+    if (sResult <= 0) {
+        std::cout << "Failed to send data!\n";
+        return sendError;
+    }
+
+    std::string text = "";
+    std::string strBuffer = "";
+    while (!xmlReader.eof()) {
+        strBuffer.clear();
+        std::getline(xmlReader, strBuffer);
+        text += strBuffer;
+    }
+    sResult = send(_slaveSocket, text.c_str(), fileSize, 0);
+    if (sResult <= 0) {
+        std::cout << "Failed to send data!\n";
+        return sendError;
+    }
+
+    // Close reading file
+    xmlReader.close();
+
+    return noError;
+}
 
 
 

@@ -9,6 +9,7 @@
 // Containers and iterators
 #include <string>
 #include <list>
+#include <iterator>
 
 // Server part
 #include <fcntl.h>

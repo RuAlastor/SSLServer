@@ -19,7 +19,7 @@ namespace Sorokin {
 
         void loadDocument() noexcept(false);
         int parseDocument() noexcept(false);
-        int rebuildDocument() noexcept(false);
+        int rebuildDocument(const  std::list<unsigned char*>& signatures, const std::string& publicKey) noexcept(false);
 
     private:
         enum ParserErrors { noError, emptyDoc };

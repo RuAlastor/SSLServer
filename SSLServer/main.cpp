@@ -2,7 +2,7 @@
 
 int main() {
 
-    Sorokin::MasterSocket server(12345);
+    Sorokin::MasterSocket server(12344);
     if (server.Start()) {
         return -1;
     }
