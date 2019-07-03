@@ -62,7 +62,7 @@ int Client::Handle() noexcept(false) {
     while (!xmlReader.eof()) {
         strBuffer.clear();
         std::getline(xmlReader, strBuffer);
-        text += strBuffer;
+        text += strBuffer + '\n';
     }
     sResult = send(_masterSocket, text.c_str(), fileSize, 0);
     if (sResult <= 0) {

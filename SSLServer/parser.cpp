@@ -12,9 +12,16 @@ Parser::~Parser() {
 }
 
 
-void Parser::loadDocument() noexcept(false) {
+int Parser::loadDocument() noexcept(false) {
     _xmlParser = new xmlpp::DomParser();
-    _xmlParser->parse_file(_filename);
+    try {
+        _xmlParser->parse_file(_filename);
+    }
+    catch (...) {
+        std::cout << "Document is incorrect!\n";
+        return incorrectDoc;
+    }
+    return noError;
 }
 
 int Parser::parseDocument() noexcept(false) {
@@ -38,17 +45,20 @@ int Parser::parseDocument() noexcept(false) {
 }
 
 
-int Parser::rebuildDocument(const std::list<unsigned char*>& signatures, const std::string& publicKey) noexcept(false) {
+int Parser::rebuildDocument(const std::list<std::string>& signatures, const std::string& publicKey) noexcept(false) {
     xmlpp::Element* root = _xmlParser->get_document()->get_root_node();
     root->set_name("response");
     auto iter = signatures.begin();
     for (auto& possibleClient : root->get_children()) {
         if (xmlpp::Element* client = dynamic_cast<xmlpp::Element*>(possibleClient)) {
             xmlpp::Element* newNode = client->add_child("signature");
-            newNode->add_child_text(reinterpret_cast<const char*>(*iter));
+            newNode->add_child_text(*iter);
+            client->add_child_text_before(newNode, "\t");
+            client->add_child_text("\n\t\t");
             iter++;
             newNode = client->add_child("public key");
             newNode->add_child_text(publicKey);
+            client->add_child_text("\n\t");
         }
     }
 

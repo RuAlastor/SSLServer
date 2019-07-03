@@ -20,6 +20,8 @@ namespace Sorokin {
 
     protected:
 
+        // Sets given socket to nonblock state
+        // return 0 if everything was correct
         inline int setNonBlock(int& fd) noexcept {
             int flags;
         #ifdef O_NONBLOCK
@@ -48,16 +50,24 @@ namespace Sorokin {
         MasterSocket& operator=(const MasterSocket& other) = delete;
         MasterSocket& operator=(MasterSocket&& other) = delete;
 
+        // Asks user to write password for private key file
+        void AskPwd() noexcept(false);
+        // Initializes, binds and sets socket to listen
+        // returns 0 if everything was correct
         int Start() noexcept;
+        // Waits for client to connect
+        // When client connected creates SlaveSocket obj and gives client to it
+        // returns 0 if everything was correct
         int Handle() noexcept(false);
 
 
     private:
-        enum MasterSocketErrors { noError, socketInitError, socketBindError, socketListenError, connectionError, slaveSocketError };
+        enum MasterSocketErrors { noError, socketInitError, socketBindError, socketListenError, slaveSocketError };
 
         const in_addr_t _ip;
         const int _port;
         int _masterSocket;
+        std::string _pwd;
 
     };
 
@@ -66,6 +76,7 @@ namespace Sorokin {
     public:
 
         explicit SlaveSocket(int fd,
+                             const std::string* pwd,
                              const char* filename,
                              sockaddr_in* socketInfo,
                              socklen_t* socketInfoLen) noexcept;
@@ -77,18 +88,18 @@ namespace Sorokin {
         SlaveSocket& operator=(const SlaveSocket& other) = delete;
         SlaveSocket& operator=(SlaveSocket&& other) = delete;
 
-        int Start() noexcept;
+        int RecvFile() noexcept;
         int SignFile() noexcept(false);
-        int SendBack() noexcept;
+        int SendFile() noexcept;
 
     private:
-        enum SlaveSocketErrors { noError, fileWritingError, parseError, acceptError, sendError };
+        enum SlaveSocketErrors { noError, connectionError, fileWritingError, parseError, signerError, acceptError, sendError };
 
         int _slaveSocket;
+        const std::string* _pwd;
         const char* _filename;
         sockaddr_in* _socketInfo;
         socklen_t* _socketInfoLen;
-
 
     };
 

@@ -1,7 +1,7 @@
 #ifndef SIGNER_H
 #define SIGNER_H
 
-#include <headers.h>
+#include "headers.h"
 
 namespace Sorokin {
 
@@ -9,7 +9,9 @@ namespace Sorokin {
 
     public:
 
-        explicit Signer(const char* publicLoc, const char* privateLoc) noexcept;
+        explicit Signer(const std::string pwd,
+                        const char* publicLoc = "/home/student/C++/public_key",
+                        const char* privateLoc = "/home/student/C++/private_key") noexcept;
         ~Signer() noexcept = default;
 
         Signer() = delete;
@@ -18,15 +20,15 @@ namespace Sorokin {
         Signer& operator=(const Signer& other) = delete;
         Signer& operator=(Signer&& other) = delete;
 
-        void GetAccess() noexcept;
-        unsigned char* SignString(const std::string& stringToSign) noexcept(false);
+        std::string SignString(const std::string& stringToSign) noexcept(false);
         std::string GetPublicKey() noexcept(false);
 
     private:
+        const std::string _pwd;
         const char* _publicLoc;
         const char* _privateLoc;
-        std::string _pwd;
 
+        std::string turnSignReadable(const unsigned char* signature, const unsigned int& signatureLength) noexcept(false);
 
     };
 
