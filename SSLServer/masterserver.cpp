@@ -60,7 +60,10 @@ int MasterSocket::Handle() noexcept(false) {
 
     SlaveSocket slaveSocketObj(accept(_masterSocket, nullptr, nullptr),
                                &_pwd,
+<<<<<<< HEAD
                                "/home/student/C++/localSignedXML.xml",
+=======
+>>>>>>> parsingMemoryString
                                nullptr,
                                nullptr);
     if (slaveSocketObj.RecvFile()) {
@@ -80,11 +83,17 @@ int MasterSocket::Handle() noexcept(false) {
 
 SlaveSocket::SlaveSocket(int fd,
                          const std::string* pwd,
+<<<<<<< HEAD
                          const char* filename,
                          sockaddr_in* socketInfo,
                          socklen_t* socketInfoLen) noexcept : _slaveSocket(fd),
                                                               _pwd(pwd),
                                                               _filename(filename),
+=======
+                         sockaddr_in* socketInfo,
+                         socklen_t* socketInfoLen) noexcept : _slaveSocket(fd),
+                                                              _pwd(pwd),
+>>>>>>> parsingMemoryString
                                                               _socketInfo(socketInfo),
                                                               _socketInfoLen(socketInfoLen) {}
 
@@ -97,6 +106,7 @@ int SlaveSocket::RecvFile() noexcept {
     if (_slaveSocket < 0) {
         std::cout << "Connection error!\n";
         return connectionError;
+<<<<<<< HEAD
     }
     std::cout << "Got a connection!\n";
 
@@ -106,7 +116,10 @@ int SlaveSocket::RecvFile() noexcept {
     if (!xmlWriter.is_open()) {
         std::cout << "Can't open the file!\n";
         return fileWritingError;
+=======
+>>>>>>> parsingMemoryString
     }
+    std::cout << "Got a connection!\n";
 
     // Get size of the doc
     char* buffer = new char[sizeof(int)];
@@ -126,11 +139,20 @@ int SlaveSocket::RecvFile() noexcept {
         std::cout << "Failed to recieve message!\n";
         return acceptError;
     }
+<<<<<<< HEAD
     std::cout << "Got the document!\n";
 
     // Write it to the file
     xmlWriter << buffer << std::endl;
     xmlWriter.close();
+=======
+    _xmlFileIn.clear();
+    for (int i = 0; i < fileSize; i++) {
+        _xmlFileIn += buffer[i];
+    }
+    std::cout << "Got the document!\n";
+
+>>>>>>> parsingMemoryString
     delete[] buffer;
 
     return noError;
@@ -139,7 +161,11 @@ int SlaveSocket::RecvFile() noexcept {
 int SlaveSocket::SignFile() noexcept(false) {
     std::list<std::string> strsToSign;
 
+<<<<<<< HEAD
     Parser xmlParser(_filename, &strsToSign);
+=======
+    Parser xmlParser(&_xmlFileIn, &strsToSign);
+>>>>>>> parsingMemoryString
     if (xmlParser.loadDocument()) {
         return parseError;
     }
@@ -161,6 +187,7 @@ int SlaveSocket::SignFile() noexcept(false) {
 }
 
 int SlaveSocket::SendFile() noexcept {
+<<<<<<< HEAD
     // Check file
     std::ifstream xmlReader;
     xmlReader.open(_filename, std::ios_base::ate | std::ios_base::binary);
@@ -173,13 +200,19 @@ int SlaveSocket::SendFile() noexcept {
     xmlReader.seekg(0, std::ios_base::beg);
 
     // Send size of the doc
+=======
+    // Send size of the doc
+    int fileSize = _xmlFileIn.size();
+    std::cout << fileSize << '\n';
+>>>>>>> parsingMemoryString
     int sResult = send(_slaveSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
     if (sResult <= 0) {
-        std::cout << "Failed to send data!\n";
+        std::cout << "Failed to send size!\n";
         return sendError;
     }
 
     // Send doc
+<<<<<<< HEAD
     std::string text = "";
     std::string strBuffer = "";
     while (!xmlReader.eof()) {
@@ -188,13 +221,13 @@ int SlaveSocket::SendFile() noexcept {
         text += strBuffer + '\n';
     }
     sResult = send(_slaveSocket, text.c_str(), fileSize, 0);
+=======
+    sResult = send(_slaveSocket, _xmlFileIn.c_str(), fileSize, 0);
+>>>>>>> parsingMemoryString
     if (sResult <= 0) {
         std::cout << "Failed to send data!\n";
         return sendError;
     }
-
-    // Close reading file
-    xmlReader.close();
 
     return noError;
 }
