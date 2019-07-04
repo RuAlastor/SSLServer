@@ -8,7 +8,7 @@ namespace Sorokin {
     class Parser {
 
     public:
-        Parser(const char* filename, std::list<std::string>* externalList) noexcept;
+        Parser(std::string* xmlFile, std::list<std::string>* externalList) noexcept;
         ~Parser() noexcept;
 
         Parser() = delete;
@@ -24,7 +24,7 @@ namespace Sorokin {
     private:
         enum ParserErrors { noError, incorrectDoc, emptyDoc };
 
-        const char* _filename;
+        std::string* _xmlFile;
         xmlpp::DomParser* _xmlParser;
         std::list<std::string>* _tempStorage;
 

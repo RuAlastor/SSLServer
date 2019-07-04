@@ -60,7 +60,6 @@ int MasterSocket::Handle() noexcept(false) {
 
     SlaveSocket slaveSocketObj(accept(_masterSocket, nullptr, nullptr),
                                &_pwd,
-                               "/home/student/C++/localSignedXML.xml",
                                nullptr,
                                nullptr);
     if (slaveSocketObj.RecvFile()) {
@@ -80,11 +79,9 @@ int MasterSocket::Handle() noexcept(false) {
 
 SlaveSocket::SlaveSocket(int fd,
                          const std::string* pwd,
-                         const char* filename,
                          sockaddr_in* socketInfo,
                          socklen_t* socketInfoLen) noexcept : _slaveSocket(fd),
                                                               _pwd(pwd),
-                                                              _filename(filename),
                                                               _socketInfo(socketInfo),
                                                               _socketInfoLen(socketInfoLen) {}
 
@@ -99,14 +96,6 @@ int SlaveSocket::RecvFile() noexcept {
         return connectionError;
     }
     std::cout << "Got a connection!\n";
-
-    // Check file
-    std::ofstream xmlWriter;
-    xmlWriter.open(_filename);
-    if (!xmlWriter.is_open()) {
-        std::cout << "Can't open the file!\n";
-        return fileWritingError;
-    }
 
     // Get size of the doc
     char* buffer = new char[sizeof(int)];
@@ -126,11 +115,12 @@ int SlaveSocket::RecvFile() noexcept {
         std::cout << "Failed to recieve message!\n";
         return acceptError;
     }
+    _xmlFileIn.clear();
+    for (int i = 0; i < fileSize; i++) {
+        _xmlFileIn += buffer[i];
+    }
     std::cout << "Got the document!\n";
 
-    // Write it to the file
-    xmlWriter << buffer << std::endl;
-    xmlWriter.close();
     delete[] buffer;
 
     return noError;
@@ -139,7 +129,7 @@ int SlaveSocket::RecvFile() noexcept {
 int SlaveSocket::SignFile() noexcept(false) {
     std::list<std::string> strsToSign;
 
-    Parser xmlParser(_filename, &strsToSign);
+    Parser xmlParser(&_xmlFileIn, &strsToSign);
     if (xmlParser.loadDocument()) {
         return parseError;
     }
@@ -161,40 +151,21 @@ int SlaveSocket::SignFile() noexcept(false) {
 }
 
 int SlaveSocket::SendFile() noexcept {
-    // Check file
-    std::ifstream xmlReader;
-    xmlReader.open(_filename, std::ios_base::ate | std::ios_base::binary);
-    if (!xmlReader.is_open()) {
-        std::cout << "Failed to open file!\n";
-        return -1;
-    }
-    const int fileSize = xmlReader.tellg();
-    std::cout << fileSize << std::endl;
-    xmlReader.seekg(0, std::ios_base::beg);
-
     // Send size of the doc
+    int fileSize = _xmlFileIn.size();
+    std::cout << fileSize << '\n';
     int sResult = send(_slaveSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
     if (sResult <= 0) {
-        std::cout << "Failed to send data!\n";
+        std::cout << "Failed to send size!\n";
         return sendError;
     }
 
     // Send doc
-    std::string text = "";
-    std::string strBuffer = "";
-    while (!xmlReader.eof()) {
-        strBuffer.clear();
-        std::getline(xmlReader, strBuffer);
-        text += strBuffer + '\n';
-    }
-    sResult = send(_slaveSocket, text.c_str(), fileSize, 0);
+    sResult = send(_slaveSocket, _xmlFileIn.c_str(), fileSize, 0);
     if (sResult <= 0) {
         std::cout << "Failed to send data!\n";
         return sendError;
     }
-
-    // Close reading file
-    xmlReader.close();
 
     return noError;
 }

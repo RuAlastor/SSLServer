@@ -77,7 +77,6 @@ namespace Sorokin {
 
         explicit SlaveSocket(int fd,
                              const std::string* pwd,
-                             const char* filename,
                              sockaddr_in* socketInfo,
                              socklen_t* socketInfoLen) noexcept;
         ~SlaveSocket() noexcept;
@@ -97,7 +96,7 @@ namespace Sorokin {
 
         int _slaveSocket;
         const std::string* _pwd;
-        const char* _filename;
+        std::string _xmlFileIn;
         sockaddr_in* _socketInfo;
         socklen_t* _socketInfoLen;
 
