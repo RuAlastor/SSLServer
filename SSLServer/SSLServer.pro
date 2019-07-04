@@ -17,6 +17,7 @@ HEADERS += \
     headers.h \
     masterserver.h \
     parser.h \
-    signer.h
+    signer.h \
+    mastersocketexceptions.h
 
 unix: PKGCONFIG += libxml++-2.6

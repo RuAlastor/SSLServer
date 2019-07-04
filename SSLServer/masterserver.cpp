@@ -22,12 +22,11 @@ void MasterSocket::AskPwd() noexcept(false) {
     std::cin >> _pwd;
 }
 
-int MasterSocket::Start() noexcept {
+void MasterSocket::Start() noexcept(false) {
     // Initialize server
     _masterSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_masterSocket == -1) {
-        std::cout << "Failed to initialize listening socket!\n";
-        return socketInitError;
+        throw masterSocketInitError;
     }
     std::cout << "Socket was initialized!\n";
 
@@ -40,19 +39,15 @@ int MasterSocket::Start() noexcept {
 
     // Bind socket
     if (bind(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo)) == -1) {
-        std::cout << "Failed to bind socket!\n";
-        return socketBindError;
+        throw masterSocketBindError;
     }
     std::cout << "Socket was binded!\n";
 
     // Set to listen
     if (listen(_masterSocket, SOMAXCONN) == -1) {
-        std::cout << "Failed to set socket to listen!\n";
-        return socketListenError;
+        throw masterSocketListenError;
     }
     std::cout << "Socket was set to listen!\n";
-
-    return noError;
 }
 
 int MasterSocket::Handle() noexcept(false) {
