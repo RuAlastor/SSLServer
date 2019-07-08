@@ -1,7 +1,7 @@
 #ifndef MASTERSERVER_H
 #define MASTERSERVER_H
 
-#include "mastersocketexceptions.h"
+#include "exceptions.h"
 #include "parser.h"
 #include "signer.h"
 
@@ -58,8 +58,7 @@ namespace Sorokin {
         // Shutdowns the connection and closes the socket
         void End() noexcept;
         // Waits for client to connect
-        // When client connected creates SlaveSocket obj and gives client to it
-        // returns 0 if everything was correct
+        // When client connected creates SlaveSocket obj and gives connection to it
         void Handle() noexcept(false);
 
 
@@ -87,13 +86,12 @@ namespace Sorokin {
         SlaveSocket& operator=(const SlaveSocket& other) = delete;
         SlaveSocket& operator=(SlaveSocket&& other) = delete;
 
-        int RecvFile() noexcept;
-        int SignFile() noexcept(false);
-        int SendFile() noexcept;
+        void CloseConnection() noexcept;
+        void RecvFile() noexcept(false);
+        void SignFile() noexcept(false);
+        void SendFile() noexcept(false);
 
     private:
-        enum SlaveSocketErrors { noError, connectionError, fileWritingError, parseError, signerError, acceptError, sendError };
-
         int _slaveSocket;
         const std::string* _pwd;
         std::string _xmlFileIn;

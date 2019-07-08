@@ -62,18 +62,9 @@ void MasterSocket::Handle() noexcept(false) {
                                &_pwd,
                                nullptr,
                                nullptr);
-    if (slaveSocketObj.RecvFile()) {
-        this->End();
-        throw SlaveSocketException();
-    }
-    if (slaveSocketObj.SignFile()) {
-        this->End();
-        throw SlaveSocketException();
-    }
-    if (slaveSocketObj.SendFile()) {
-        this->End();
-        throw SlaveSocketException();
-    }
+    slaveSocketObj.RecvFile();
+    slaveSocketObj.SignFile();
+    slaveSocketObj.SendFile();
 }
 
 // SLAVE SOCKET
@@ -91,10 +82,14 @@ SlaveSocket::~SlaveSocket() {
     close(_slaveSocket);
 }
 
-int SlaveSocket::RecvFile() noexcept {
+void SlaveSocket::CloseConnection() {
+    shutdown(_slaveSocket, SHUT_RDWR);
+    close(_slaveSocket);
+}
+
+void SlaveSocket::RecvFile() noexcept {
     if (_slaveSocket < 0) {
-        std::cout << "Connection error!\n";
-        return connectionError;
+        throw SlaveSocketConnectionError();
     }
     std::cout << "Got a connection!\n";
 
@@ -116,18 +111,19 @@ int SlaveSocket::RecvFile() noexcept {
         std::cout << "Failed to recieve message!\n";
         return acceptError;
     }
+
+    // Copy the doc to the string
     _xmlFileIn.clear();
     for (int i = 0; i < fileSize; i++) {
         _xmlFileIn += buffer[i];
     }
     std::cout << "Got the document!\n";
-
     delete[] buffer;
 
     return noError;
 }
 
-int SlaveSocket::SignFile() noexcept(false) {
+void SlaveSocket::SignFile() noexcept(false) {
     std::list<std::string> strsToSign;
 
     Parser xmlParser(&_xmlFileIn, &strsToSign);
@@ -151,7 +147,7 @@ int SlaveSocket::SignFile() noexcept(false) {
     return noError;
 }
 
-int SlaveSocket::SendFile() noexcept {
+void SlaveSocket::SendFile() noexcept {
     // Send size of the doc
     int fileSize = _xmlFileIn.size();
     std::cout << fileSize << '\n';
