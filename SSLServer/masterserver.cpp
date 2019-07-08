@@ -48,6 +48,8 @@ void MasterSocket::Start() noexcept(false) {
         throw MasterSocketListenError();
     }
     std::cout << "Socket was set to listen!\n";
+
+    this->Handle();
 }
 
 void MasterSocket::End() noexcept {
@@ -62,11 +64,7 @@ void MasterSocket::Handle() noexcept(false) {
                                &_pwd,
                                nullptr,
                                nullptr);
-    slaveSocketObj.RecvFile();
-    slaveSocketObj.SignFile();
-    slaveSocketObj.SendFile();
-
-    slaveSocketObj.CloseConnection();
+    slaveSocketObj.workWithXML();
 }
 
 // SLAVE SOCKET

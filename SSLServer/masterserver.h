@@ -54,18 +54,18 @@ namespace Sorokin {
         void AskPwd() noexcept(false);
         // Initializes, binds and sets socket to listen
         void Start() noexcept(false);
-        // Shutdowns the connection and closes the socket
-        void End() noexcept;
-        // Waits for client to connect
-        // When client connected creates SlaveSocket obj and gives connection to it
-        void Handle() noexcept(false);
-
 
     private:
         const in_addr_t _ip;
         const int _port;
         int _masterSocket;
         std::string _pwd;
+
+        // Waits for client to connect
+        // When client connected creates SlaveSocket obj and  moves connection to new socket which is transfered to SlaveSocket obj
+        void Handle() noexcept(false);
+        // Shutdowns the connection and closes the socket
+        void End() noexcept;
 
     };
 
@@ -85,10 +85,11 @@ namespace Sorokin {
         SlaveSocket& operator=(const SlaveSocket& other) = delete;
         SlaveSocket& operator=(SlaveSocket&& other) = delete;
 
-        void CloseConnection() noexcept;
-        void RecvFile() noexcept(false);
-        void SignFile() noexcept(false);
-        void SendFile() noexcept(false);
+        inline void workWithXML() noexcept(false) {
+            this->RecvFile();
+            this->SignFile();
+            this->SendFile();
+        }
 
     private:
         int _slaveSocket;
@@ -96,6 +97,15 @@ namespace Sorokin {
         std::string _xmlFileIn;
         sockaddr_in* _socketInfo;
         socklen_t* _socketInfoLen;
+
+        // Recieves the document and its size
+        void RecvFile() noexcept(false);
+        // Signs recieved document
+        void SignFile() noexcept(false);
+        // Sends signed document
+        void SendFile() noexcept(false);
+        // Shutdowns the connection and closes the socket
+        void CloseConnection() noexcept;
 
     };
 

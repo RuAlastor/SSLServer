@@ -6,12 +6,10 @@ int main() {
     server.AskPwd();
     try {
         server.Start();
-        server.Handle();
     }
     catch (std::exception& error) {
         std::cout << error.what();
     }
-    server.End();
 
     return 0;
 }
