@@ -11,6 +11,7 @@ int main() {
     catch (std::exception& error) {
         std::cout << error.what();
     }
+    server.End();
 
     return 0;
 }

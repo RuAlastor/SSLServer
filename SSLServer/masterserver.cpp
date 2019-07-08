@@ -65,6 +65,8 @@ void MasterSocket::Handle() noexcept(false) {
     slaveSocketObj.RecvFile();
     slaveSocketObj.SignFile();
     slaveSocketObj.SendFile();
+
+    slaveSocketObj.CloseConnection();
 }
 
 // SLAVE SOCKET
