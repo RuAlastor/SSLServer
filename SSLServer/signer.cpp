@@ -38,6 +38,7 @@ std::string Signer::SignString(const std::string& stringToSign) noexcept(false) 
     RSA_free(keys);
 
     std::string tmp = turnSignReadable(signature, signatureLength);
+
     delete signature;
 
     return tmp;
