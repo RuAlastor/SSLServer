@@ -37,7 +37,9 @@ std::string Signer::SignString(const std::string& stringToSign) noexcept(false) 
 
     RSA_free(keys);
 
-    return turnSignReadable(signature, signatureLength);
+    std::string tmp = turnSignReadable(signature, signatureLength);
+
+    return tmp;
 }
 
 std::string Signer::GetPublicKey() noexcept(false) {
