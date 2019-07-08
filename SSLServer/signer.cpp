@@ -10,17 +10,7 @@ Signer::Signer(const std::string pwd,
 
 std::string Signer::SignString(const std::string& stringToSign) noexcept(false) {
     RSA* keys = nullptr;
-
-    FILE *publicFile = nullptr, *privateFile = nullptr;
-    publicFile = fopen(_publicLoc, "rb");
-    privateFile = fopen(_privateLoc, "rb");
-
-    OpenSSL_add_all_algorithms();
-    PEM_read_RSAPublicKey(publicFile, &keys, NULL, NULL);
-    PEM_read_RSAPrivateKey(privateFile, &keys, NULL, const_cast<char*>(_pwd.c_str()));
-
-    fclose(publicFile);
-    fclose(privateFile);
+    this->getRSAKeys(&keys);
 
     unsigned char* signature = new unsigned char[RSA_size(keys)];
     unsigned int signatureLength;
@@ -37,7 +27,7 @@ std::string Signer::SignString(const std::string& stringToSign) noexcept(false) 
 
     RSA_free(keys);
 
-    std::string tmp = turnSignReadable(signature, signatureLength);
+    std::string tmp = this->turnSignReadable(signature, signatureLength);
     delete signature;
 
     return tmp;
@@ -57,6 +47,18 @@ std::string Signer::GetPublicKey() noexcept(false) {
     return publicKey;
 }
 
+void Signer::getRSAKeys(RSA **keys) noexcept {
+    FILE *publicFile = nullptr, *privateFile = nullptr;
+    publicFile = fopen(_publicLoc, "rb");
+    privateFile = fopen(_privateLoc, "rb");
+
+    OpenSSL_add_all_algorithms();
+    PEM_read_RSAPublicKey(publicFile, keys, NULL, NULL);
+    PEM_read_RSAPrivateKey(privateFile, keys, NULL, const_cast<char*>(_pwd.c_str()));
+
+    fclose(publicFile);
+    fclose(privateFile);
+}
 
 std::string Signer::turnSignReadable(const unsigned char *signature, const unsigned int& signatureLength) noexcept(false) {
     std::string signatureStr = "";

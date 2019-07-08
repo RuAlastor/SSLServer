@@ -1,4 +1,4 @@
-#include "masterserver.h"
+#include "sockets.h"
 
 using namespace Sorokin;
 
@@ -7,17 +7,10 @@ using namespace Sorokin;
 
 MasterSocket::MasterSocket(int port) noexcept : _ip(INADDR_LOOPBACK),
                                                 _port(port),
-                                                _masterSocket(-1),
-                                                _pwd("12345") {}
+                                                _masterSocket(-1) {}
 MasterSocket::~MasterSocket() noexcept {
     shutdown(_masterSocket, SHUT_RDWR);
     close(_masterSocket);
-}
-
-void MasterSocket::AskPwd() noexcept(false) {
-    std::cout << "Enter the password for the private key: ";
-    _pwd.clear();
-    std::cin >> _pwd;
 }
 
 void MasterSocket::Start() noexcept(false) {
@@ -37,34 +30,30 @@ void MasterSocket::Start() noexcept(false) {
 
     // Bind socket
     if (bind(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo)) == -1) {
-        this->End();
         throw MasterSocketBindError();
     }
     std::cout << "Socket was binded!\n";
 
     // Set to listen
-    if (listen(_masterSocket, SOMAXCONN) == -1) {
-        this->End();
+    if (listen(_masterSocket, 1) == -1) {
         throw MasterSocketListenError();
     }
     std::cout << "Socket was set to listen!\n";
-
-    this->Handle();
 }
 
-void MasterSocket::End() noexcept {
+void MasterSocket::CloseConnection() noexcept {
     shutdown(_masterSocket, SHUT_RDWR);
     close(_masterSocket);
 }
 
-void MasterSocket::Handle() noexcept(false) {
+SlaveSocketInfo MasterSocket::Handle() noexcept(false) {
     std::cout << "Waiting for connection...\n";
 
-    SlaveSocket slaveSocketObj(accept(_masterSocket, nullptr, nullptr),
-                               &_pwd,
-                               nullptr,
-                               nullptr);
-    slaveSocketObj.workWithXML();
+    SlaveSocketInfo tmp;
+    tmp._slaveSocketInfo = nullptr;
+    tmp._slaveSocketInfoLen = nullptr;
+    tmp._fd = accept(_masterSocket, reinterpret_cast<sockaddr*>(tmp._slaveSocketInfo), tmp._slaveSocketInfoLen);
+    return tmp;
 }
 
 // SLAVE SOCKET
@@ -97,7 +86,6 @@ void SlaveSocket::RecvFile() noexcept(false) {
     char* buffer = new char[sizeof(int)];
     int rResult = recv(_slaveSocket, buffer, sizeof(int), 0);
     if (rResult <0) {
-        this->CloseConnection();
         throw SlaveSocketRecievingError();
     }
     int fileSize = 0;
@@ -109,7 +97,6 @@ void SlaveSocket::RecvFile() noexcept(false) {
     buffer = new char[fileSize];
     rResult = recv(_slaveSocket, buffer, fileSize, 0);
     if (rResult <0) {
-        this->CloseConnection();
         throw SlaveSocketRecievingError();
     }
 
@@ -151,17 +138,14 @@ void SlaveSocket::SignFile() noexcept(false) {
 void SlaveSocket::SendFile() noexcept(false) {
     // Send size of the doc
     int fileSize = _xmlFileIn.size();
-    std::cout << fileSize << '\n';
     int sResult = send(_slaveSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
     if (sResult <= 0) {
-        this->CloseConnection();
         throw SlaveSocketSendingError();
     }
 
     // Send doc
     sResult = send(_slaveSocket, _xmlFileIn.c_str(), fileSize, 0);
     if (sResult <= 0) {
-        this->CloseConnection();
         throw SlaveSocketSendingError();
     }
 }

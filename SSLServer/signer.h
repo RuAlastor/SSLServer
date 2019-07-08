@@ -2,6 +2,7 @@
 #define SIGNER_H
 
 #include "headers.h"
+#include "exceptions.h"
 
 namespace Sorokin {
 
@@ -28,6 +29,7 @@ namespace Sorokin {
         const char* _publicLoc;
         const char* _privateLoc;
 
+        void getRSAKeys(RSA** keys) noexcept;
         std::string turnSignReadable(const unsigned char* signature, const unsigned int& signatureLength) noexcept(false);
 
     };

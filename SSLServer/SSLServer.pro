@@ -4,9 +4,10 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    masterserver.cpp \
     parser.cpp \
-    signer.cpp
+    signer.cpp \
+    server.cpp \
+    sockets.cpp
 
 LIBS += -lcrypto
 
@@ -15,9 +16,10 @@ unix: PKGCONFIG += libssl
 
 HEADERS += \
     headers.h \
-    masterserver.h \
     parser.h \
     signer.h \
-    exceptions.h
+    exceptions.h \
+    sockets.h \
+    server.h
 
 unix: PKGCONFIG += libxml++-2.6

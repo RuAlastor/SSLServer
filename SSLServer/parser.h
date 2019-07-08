@@ -2,6 +2,7 @@
 #define PARSER_H
 
 #include "headers.h"
+#include "exceptions.h"
 
 namespace Sorokin {
 
