@@ -3,6 +3,7 @@
 
 #include "headers.h"
 
+// Master-socket exceptions
 namespace Sorokin {
 
     class MasterSocketException : public std::exception {
@@ -90,6 +91,7 @@ namespace Sorokin {
 
 }
 
+// Slave-socket exceptions
 namespace Sorokin {
 
     class SlaveSocketConnectionError : public SlaveSocketException {
@@ -162,6 +164,7 @@ namespace Sorokin {
 
 }
 
+// Parser exceptions
 namespace Sorokin {
 
     class EmptyFileError : public ParserException {
