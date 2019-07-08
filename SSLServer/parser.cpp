@@ -21,6 +21,7 @@ int Parser::loadDocument() noexcept(false) {
         std::cout << "Document is incorrect!\n";
         return incorrectDoc;
     }
+    _xmlFile->clear();
     return noError;
 }
 

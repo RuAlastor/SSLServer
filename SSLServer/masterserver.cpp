@@ -26,7 +26,7 @@ void MasterSocket::Start() noexcept(false) {
     // Initialize server
     _masterSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_masterSocket == -1) {
-        throw masterSocketInitError;
+        throw masterSocketInitError();
     }
     std::cout << "Socket was initialized!\n";
 
@@ -39,13 +39,13 @@ void MasterSocket::Start() noexcept(false) {
 
     // Bind socket
     if (bind(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo)) == -1) {
-        throw masterSocketBindError;
+        throw masterSocketBindError();
     }
     std::cout << "Socket was binded!\n";
 
     // Set to listen
     if (listen(_masterSocket, SOMAXCONN) == -1) {
-        throw masterSocketListenError;
+        throw masterSocketListenError();
     }
     std::cout << "Socket was set to listen!\n";
 }
