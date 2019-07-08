@@ -9,7 +9,7 @@ int main() {
     }
     catch (std::exception& error) {
         server.Clear();
-        std::cout << error.what();
+        std::cout << error.what() << '\n';
     }
 
     return 0;

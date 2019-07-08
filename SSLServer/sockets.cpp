@@ -120,7 +120,8 @@ void SlaveSocket::SignFile() noexcept(false) {
     }
     catch (std::exception& error) {
         xmlParser.Clear();
-        throw error;
+        std::cout << error.what() << '\n';
+        throw ParserException();
     }
 
     Signer signer(*_pwd);

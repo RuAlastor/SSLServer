@@ -8,7 +8,6 @@ Parser::Parser(std::string* xmlFile,
                                                                 _xmlParser(nullptr),
                                                                 _tempStorage(externalList) {}
 Parser::~Parser() {
-    _xmlFile->clear();
     delete _xmlParser;
     _xmlParser = nullptr;
 }

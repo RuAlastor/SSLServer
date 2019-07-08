@@ -30,7 +30,8 @@ void Server::CreateMasterSocket(int port) noexcept(false) {
     }
     catch (std::exception& error) {
         _masterSocketPtr->CloseConnection();
-        throw error;
+        std::cout << error.what() << '\n';
+        throw MasterSocketException();
     }
 }
 
@@ -42,7 +43,8 @@ void Server::WaitForConnection() noexcept(false) {
     }
     catch (std::exception& error) {
         _masterSocketPtr->CloseConnection();
-        throw error;
+        std::cout << error.what() << '\n';
+        throw MasterSocketException();
     }
 }
 
@@ -54,7 +56,8 @@ void Server::GetSignSend() noexcept(false) {
     }
     catch (std::exception& error) {
         _slaveSocektPtr->CloseConnection();
-        throw error;
+        std::cout << error.what() << '\n';
+        throw SlaveSocketException();
     }
 }
 

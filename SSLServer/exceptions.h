@@ -18,7 +18,7 @@ namespace Sorokin {
         MasterSocketException& operator=(MasterSocketException&& other) = delete;
 
         inline virtual const char* what() const throw() {
-            return "Master-socket error!\n";
+            return "Master-socket error!";
         }
 
     };
@@ -35,7 +35,7 @@ namespace Sorokin {
         MasterSocketInitError& operator=(MasterSocketInitError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "Failed to initialize listening socket!\n";
+            return "Failed to initialize listening socket!";
         }
 
     };
@@ -52,7 +52,7 @@ namespace Sorokin {
         MasterSocketBindError& operator=(MasterSocketBindError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "Failed to bind socket!\n";
+            return "Failed to bind socket!";
         }
     };
 
@@ -68,7 +68,7 @@ namespace Sorokin {
         MasterSocketListenError& operator=(MasterSocketListenError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "Failed to set socket to listen!\n";
+            return "Failed to set socket to listen!";
         }
     };
 
@@ -84,7 +84,7 @@ namespace Sorokin {
         SlaveSocketException& operator=(SlaveSocketException&& other) = delete;
 
         inline virtual const char* what() const throw() {
-            return "Slave-socket error!\n";
+            return "Slave-socket error!";
         }
 
     };
@@ -106,7 +106,7 @@ namespace Sorokin {
         SlaveSocketConnectionError& operator=(SlaveSocketConnectionError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "Failed to connect client!\n";
+            return "Failed to connect client!";
         }
 
     };
@@ -123,7 +123,7 @@ namespace Sorokin {
         SlaveSocketRecievingError& operator=(SlaveSocketRecievingError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "Failed to recieve data!\n";
+            return "Failed to recieve data!";
         }
 
     };
@@ -140,7 +140,7 @@ namespace Sorokin {
         SlaveSocketSendingError& operator=(SlaveSocketSendingError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "Failed to send data!\n";
+            return "Failed to send data!";
         }
 
     };
@@ -157,7 +157,7 @@ namespace Sorokin {
         ParserException& operator=(ParserException&& other) = delete;
 
         inline virtual const char* what() const throw() {
-            return "Parser error!\n";
+            return "Parser error!";
         }
 
     };
@@ -179,7 +179,7 @@ namespace Sorokin {
         EmptyFileError& operator=(EmptyFileError&& other) = delete;
 
         inline const char* what() const throw() {
-            return "File is empty!\n";
+            return "File is empty!";
         }
 
     };
