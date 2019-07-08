@@ -10,10 +10,8 @@ MasterSocket::MasterSocket(int port) noexcept : _ip(INADDR_LOOPBACK),
                                                 _masterSocket(-1),
                                                 _pwd("12345") {}
 MasterSocket::~MasterSocket() noexcept {
-    if (_masterSocket != -1) {
-        shutdown(_masterSocket, SHUT_RDWR);
-        close(_masterSocket);
-    }
+    shutdown(_masterSocket, SHUT_RDWR);
+    close(_masterSocket);
 }
 
 void MasterSocket::AskPwd() noexcept(false) {
@@ -39,18 +37,25 @@ void MasterSocket::Start() noexcept(false) {
 
     // Bind socket
     if (bind(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo)) == -1) {
+        this->End();
         throw masterSocketBindError();
     }
     std::cout << "Socket was binded!\n";
 
     // Set to listen
     if (listen(_masterSocket, SOMAXCONN) == -1) {
+        this->End();
         throw masterSocketListenError();
     }
     std::cout << "Socket was set to listen!\n";
 }
 
-int MasterSocket::Handle() noexcept(false) {
+void MasterSocket::End() noexcept {
+    shutdown(_masterSocket, SHUT_RDWR);
+    close(_masterSocket);
+}
+
+void MasterSocket::Handle() noexcept(false) {
     std::cout << "Waiting for connection...\n";
 
     SlaveSocket slaveSocketObj(accept(_masterSocket, nullptr, nullptr),
@@ -58,16 +63,17 @@ int MasterSocket::Handle() noexcept(false) {
                                nullptr,
                                nullptr);
     if (slaveSocketObj.RecvFile()) {
-        return slaveSocketError;
+        this->End();
+        throw SlaveSocketException();
     }
     if (slaveSocketObj.SignFile()) {
-        return slaveSocketError;
+        this->End();
+        throw SlaveSocketException();
     }
     if (slaveSocketObj.SendFile()) {
-        return slaveSocketError;
+        this->End();
+        throw SlaveSocketException();
     }
-
-    return noError;
 }
 
 // SLAVE SOCKET

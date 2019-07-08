@@ -54,12 +54,13 @@ namespace Sorokin {
         // Asks user to write password for private key file
         void AskPwd() noexcept(false);
         // Initializes, binds and sets socket to listen
-        // returns 0 if everything was correct
         void Start() noexcept(false);
+        // Shutdowns the connection and closes the socket
+        void End() noexcept;
         // Waits for client to connect
         // When client connected creates SlaveSocket obj and gives client to it
         // returns 0 if everything was correct
-        int Handle() noexcept(false);
+        void Handle() noexcept(false);
 
 
     private:
