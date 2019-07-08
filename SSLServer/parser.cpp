@@ -9,27 +9,24 @@ Parser::Parser(std::string* xmlFile,
                                                                 _tempStorage(externalList) {}
 Parser::~Parser() {
     delete _xmlParser;
+    _xmlParser = nullptr;
 }
 
+void Parser::Clear() noexcept {
+    delete _xmlParser;
+    _xmlParser = nullptr;
+}
 
-int Parser::loadDocument() noexcept(false) {
+void Parser::loadDocument() noexcept(false) {
     _xmlParser = new xmlpp::DomParser();
-    try {
-        _xmlParser->parse_memory(_xmlFile->c_str());
-    }
-    catch (...) {
-        std::cout << "Document is incorrect!\n";
-        return incorrectDoc;
-    }
+    _xmlParser->parse_memory(_xmlFile->c_str());
     _xmlFile->clear();
-    return noError;
 }
 
-int Parser::parseDocument() noexcept(false) {
+void Parser::parseDocument() noexcept(false) {
     const xmlpp::Element* root = _xmlParser->get_document()->get_root_node();
     if (root == nullptr) {
-        std::cout << "File is empty. Nothing to sign";
-        return emptyDoc;
+        throw EmptyFileError();
     }
     for (const auto& possibleClient : root->get_children()) {
         if (const xmlpp::Element* client = dynamic_cast<const xmlpp::Element*>(possibleClient)) {
@@ -42,11 +39,10 @@ int Parser::parseDocument() noexcept(false) {
             _tempStorage->push_back(tmp);
         }
     }
-    return noError;
 }
 
 
-int Parser::rebuildDocument(const std::list<std::string>& signatures, const std::string& publicKey) noexcept(false) {
+void Parser::rebuildDocument(const std::list<std::string>& signatures, const std::string& publicKey) noexcept {
     xmlpp::Element* root = _xmlParser->get_document()->get_root_node();
     root->set_name("response");
     auto iter = signatures.begin();
@@ -65,7 +61,6 @@ int Parser::rebuildDocument(const std::list<std::string>& signatures, const std:
 
     _xmlFile->clear();
     *_xmlFile = _xmlParser->get_document()->write_to_string().c_str();
-    return noError;
 }
 
 

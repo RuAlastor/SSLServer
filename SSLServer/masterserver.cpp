@@ -24,7 +24,7 @@ void MasterSocket::Start() noexcept(false) {
     // Initialize server
     _masterSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_masterSocket == -1) {
-        throw masterSocketInitError();
+        throw MasterSocketInitError();
     }
     std::cout << "Socket was initialized!\n";
 
@@ -38,14 +38,14 @@ void MasterSocket::Start() noexcept(false) {
     // Bind socket
     if (bind(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo)) == -1) {
         this->End();
-        throw masterSocketBindError();
+        throw MasterSocketBindError();
     }
     std::cout << "Socket was binded!\n";
 
     // Set to listen
     if (listen(_masterSocket, SOMAXCONN) == -1) {
         this->End();
-        throw masterSocketListenError();
+        throw MasterSocketListenError();
     }
     std::cout << "Socket was set to listen!\n";
 }
@@ -82,12 +82,12 @@ SlaveSocket::~SlaveSocket() {
     close(_slaveSocket);
 }
 
-void SlaveSocket::CloseConnection() {
+void SlaveSocket::CloseConnection() noexcept {
     shutdown(_slaveSocket, SHUT_RDWR);
     close(_slaveSocket);
 }
 
-void SlaveSocket::RecvFile() noexcept {
+void SlaveSocket::RecvFile() noexcept(false) {
     if (_slaveSocket < 0) {
         throw SlaveSocketConnectionError();
     }
@@ -97,19 +97,20 @@ void SlaveSocket::RecvFile() noexcept {
     char* buffer = new char[sizeof(int)];
     int rResult = recv(_slaveSocket, buffer, sizeof(int), 0);
     if (rResult <0) {
-        std::cout << "Failed to recieve message!\n";
-        return acceptError;
+        this->CloseConnection();
+        throw SlaveSocketRecievingError();
     }
     int fileSize = 0;
     memcpy(&fileSize, buffer, sizeof(int));
     delete[] buffer;
+    buffer = nullptr;
 
     // Get the doc
     buffer = new char[fileSize];
     rResult = recv(_slaveSocket, buffer, fileSize, 0);
     if (rResult <0) {
-        std::cout << "Failed to recieve message!\n";
-        return acceptError;
+        this->CloseConnection();
+        throw SlaveSocketRecievingError();
     }
 
     // Copy the doc to the string
@@ -119,19 +120,20 @@ void SlaveSocket::RecvFile() noexcept {
     }
     std::cout << "Got the document!\n";
     delete[] buffer;
-
-    return noError;
+    buffer = nullptr;
 }
 
 void SlaveSocket::SignFile() noexcept(false) {
     std::list<std::string> strsToSign;
 
     Parser xmlParser(&_xmlFileIn, &strsToSign);
-    if (xmlParser.loadDocument()) {
-        return parseError;
+    try {
+        xmlParser.loadDocument();
+        xmlParser.parseDocument();
     }
-    if (xmlParser.parseDocument()) {
-        return parseError;
+    catch (std::exception& error) {
+        xmlParser.Clear();
+        throw error;
     }
 
     Signer signer(*_pwd);
@@ -140,31 +142,28 @@ void SlaveSocket::SignFile() noexcept(false) {
     for (const auto iter : strsToSign) {
         signedStrs.push_back(signer.SignString(iter));
     }
+
     std::string publicKey = signer.GetPublicKey();
 
     xmlParser.rebuildDocument(signedStrs, publicKey);
-
-    return noError;
 }
 
-void SlaveSocket::SendFile() noexcept {
+void SlaveSocket::SendFile() noexcept(false) {
     // Send size of the doc
     int fileSize = _xmlFileIn.size();
     std::cout << fileSize << '\n';
     int sResult = send(_slaveSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
     if (sResult <= 0) {
-        std::cout << "Failed to send size!\n";
-        return sendError;
+        this->CloseConnection();
+        throw SlaveSocketSendingError();
     }
 
     // Send doc
     sResult = send(_slaveSocket, _xmlFileIn.c_str(), fileSize, 0);
     if (sResult <= 0) {
-        std::cout << "Failed to send data!\n";
-        return sendError;
+        this->CloseConnection();
+        throw SlaveSocketSendingError();
     }
-
-    return noError;
 }
 
 

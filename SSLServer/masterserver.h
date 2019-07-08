@@ -1,7 +1,6 @@
 #ifndef MASTERSERVER_H
 #define MASTERSERVER_H
 
-#include "exceptions.h"
 #include "parser.h"
 #include "signer.h"
 

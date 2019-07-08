@@ -17,13 +17,12 @@ namespace Sorokin {
         Parser& operator=(const Parser& other) = delete;
         Parser& operator=(Parser&& other) = delete;
 
-        int loadDocument() noexcept(false);
-        int parseDocument() noexcept(false);
-        int rebuildDocument(const  std::list<std::string>& signatures, const std::string& publicKey) noexcept(false);
+        void Clear() noexcept;
+        void loadDocument() noexcept(false);
+        void parseDocument() noexcept(false);
+        void rebuildDocument(const  std::list<std::string>& signatures, const std::string& publicKey) noexcept;
 
     private:
-        enum ParserErrors { noError, incorrectDoc, emptyDoc };
-
         std::string* _xmlFile;
         xmlpp::DomParser* _xmlParser;
         std::list<std::string>* _tempStorage;

@@ -8,9 +8,8 @@ int main() {
         server.Start();
         server.Handle();
     }
-    catch (std::exception error) {
+    catch (std::exception& error) {
         std::cout << error.what();
-        return -1;
     }
 
     return 0;

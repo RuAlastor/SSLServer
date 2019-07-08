@@ -6,6 +6,7 @@
 #include <string.h>
 #include <fstream>
 #include <exception>
+#include "exceptions.h"
 
 // Containers and iterators
 #include <string>
