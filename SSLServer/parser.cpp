@@ -54,7 +54,7 @@ void Parser::rebuildDocument(const std::list<std::string>& signatures, const std
             client->add_child_text_before(newNode, "\t");
             client->add_child_text("\n\t\t");
             iter++;
-            newNode = client->add_child("public key");
+            newNode = client->add_child("public_key");
             newNode->add_child_text(publicKey);
             client->add_child_text("\n\t");
         }

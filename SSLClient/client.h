@@ -2,15 +2,15 @@
 #define CLIENT_H
 
 #include "headers.h"
+#include "exceptions.h"
+#include "parser.h"
 
 namespace Sorokin {
 
     class Client {
 
     public:
-        enum ClientErrors { noErrors, fileOpeningError, socketInitError, connectionError, sendError };
-
-        explicit Client(const char* filename, int port) noexcept;
+        explicit Client(const char* filenameOut, const char* filenameIn, int port) noexcept;
         ~Client() noexcept;
 
         Client() = delete;
@@ -19,14 +19,19 @@ namespace Sorokin {
         Client& operator=(const Client& other) = delete;
         Client& operator=(Client&& other) = delete;
 
-        int Start() noexcept;
-        int Handle() noexcept(false);
+        void CloseConnect() noexcept;
+        void Start() noexcept(false);
+        void Handle() noexcept(false);
 
     private:
-        const char* _filename;
+        const char* _filenameOut;
+        const char* _filenameIn;
         const in_addr_t _ip;
         const int _port;
         int _masterSocket;
+
+        void Send() noexcept(false);
+        void Get() noexcept(false);
 
     };
 

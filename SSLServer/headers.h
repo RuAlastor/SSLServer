@@ -6,6 +6,8 @@
 #include <string.h>
 #include <fstream>
 #include <exception>
+#include <iomanip>
+#include <sstream>
 
 // Containers and iterators
 #include <string>

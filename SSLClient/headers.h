@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
-#include <memory>
+#include <exception>
 
 // Online
 #include <netinet/in.h>
@@ -14,6 +14,15 @@
 
 // Containers
 #include <string>
+#include <list>
 
+// Parse
+#include <libxml++/libxml++.h>
+
+// OpenSSL
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 
 #endif // HEADERS_H

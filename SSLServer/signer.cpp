@@ -61,17 +61,12 @@ void Signer::getRSAKeys(RSA **keys) noexcept {
 }
 
 std::string Signer::turnSignReadable(const unsigned char *signature, const unsigned int& signatureLength) noexcept(false) {
-    std::string signatureStr = "";
-
-    for (unsigned int i = 0; i < signatureLength; i++) {
-        std::string tmp;
-        std::stringstream ss;
-        ss << std::hex << (int)signature[i];
-        ss >> tmp;
-        signatureStr += tmp;
+    std::stringstream ss;
+    ss << std::hex;
+    for (unsigned int i = 0; i < signatureLength; ++i) {
+        ss << std::setw(2) << std::setfill('0') << (int)signature[i];
     }
-
-    return signatureStr;
+    return ss.str();
 }
 
 

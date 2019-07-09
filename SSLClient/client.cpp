@@ -2,24 +2,27 @@
 
 using namespace Sorokin;
 
-Client::Client(const char* filename, int port) noexcept : _filename(filename),
-                                                          _ip(INADDR_LOOPBACK),
-                                                          _port(port),
-                                                          _masterSocket(-1) {}
+Client::Client(const char* filenameOut, const char* filenameIn, int port) noexcept : _filenameOut(filenameOut),
+                                                                                     _filenameIn(filenameIn),
+                                                                                     _ip(INADDR_LOOPBACK),
+                                                                                     _port(port),
+                                                                                     _masterSocket(-1) {}
 
 Client::~Client() noexcept {
-    if (_masterSocket != -1) {
-        shutdown(_masterSocket, SHUT_RDWR);
-        close(_masterSocket);
-    }
+    shutdown(_masterSocket, SHUT_RDWR);
+    close(_masterSocket);
 }
 
-int Client::Start() noexcept {
+void Client::CloseConnect() noexcept {
+    shutdown(_masterSocket, SHUT_RDWR);
+    close(_masterSocket);
+}
+
+void Client::Start() noexcept(false) {
     // Try to connect
     _masterSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_masterSocket == -1) {
-        std::cout << "Failed to initialize socket!\n";
-        return socketInitError;
+        throw ClientInitError();
     }
     std::cout << "Socket was initialized!\n";
 
@@ -30,21 +33,22 @@ int Client::Start() noexcept {
     socketInfo.sin_port = htons(_port);
 
     if (connect(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo))) {
-        std::cout << "Failed to connect!\n";
-        return connectionError;
+        throw ClientConnectError();
     }
     std::cout << "Succesfully connected to server!\n";
-
-    return noErrors;
 }
 
-int Client::Handle() noexcept(false) {
+void Client::Handle() noexcept(false) {
+    this->Send();
+    this->Get();
+}
+
+void Client::Send() noexcept(false) {
     // Check file
     std::ifstream xmlReader;
-    xmlReader.open(_filename, std::ios_base::ate | std::ios_base::binary);
+    xmlReader.open(_filenameOut, std::ios_base::ate | std::ios_base::binary);
     if (!xmlReader.is_open()) {
-        std::cout << "Failed to open file!\n";
-        return fileOpeningError;
+        throw FileError();
     }
     const int fileSize = xmlReader.tellg();
     std::cout << fileSize << std::endl;
@@ -53,8 +57,7 @@ int Client::Handle() noexcept(false) {
     // Send file to the server
     int sResult = send(_masterSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
     if (sResult <= 0) {
-        std::cout << "Failed to send data!\n";
-        return sendError;
+        throw ClientSendError();
     }
 
     std::string text = "";
@@ -66,26 +69,24 @@ int Client::Handle() noexcept(false) {
     }
     sResult = send(_masterSocket, text.c_str(), fileSize, 0);
     if (sResult <= 0) {
-        std::cout << "Failed to send data!\n";
-        return sendError;
+        throw ClientSendError();
     }
 
     // Close reading file
     xmlReader.close();
+}
 
-    // Get data here
+void Client::Get() noexcept(false) {
     std::ofstream xmlWriter;
-    xmlWriter.open("/home/student/C++/signedXML.xml", std::ios::binary | std::ios::trunc);
+    xmlWriter.open(_filenameIn, std::ios::binary | std::ios::trunc);
     if (!xmlWriter.is_open()) {
-        std::cout << "Can't open the file!\n";
-        return -1;
+        throw FileError();
     }
 
     char* buffer = new char[sizeof(int)];
     int rResult = recv(_masterSocket, buffer, sizeof(int), 0);
     if (rResult <0) {
-        std::cout << "Failed to recieve message!\n";
-        return -1;
+        throw ClientRecvError();
     }
     int fileSizeRecieved = 0;
     memcpy(&fileSizeRecieved, buffer, sizeof(int));
@@ -93,8 +94,7 @@ int Client::Handle() noexcept(false) {
     buffer = new char[fileSizeRecieved];
     rResult = recv(_masterSocket, buffer, fileSizeRecieved, 0);
     if (rResult <0) {
-        std::cout << "Failed to recieve message!\n";
-        return -1;
+        throw ClientRecvError();
     }
 
     std::cout << "Got the document!\n";
@@ -107,10 +107,7 @@ int Client::Handle() noexcept(false) {
     delete[] buffer;
 
     xmlWriter.close();
-    return noErrors;
 }
-
-
 
 
 
