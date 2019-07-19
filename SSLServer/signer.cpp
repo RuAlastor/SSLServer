@@ -3,7 +3,7 @@
 
 using namespace Sorokin;
 
-
+/*
 Signer::Signer(const std::string pwd,
                const char *publicLoc,
                const char *privateLoc) noexcept : _pwd(pwd), _publicLoc(publicLoc), _privateLoc(privateLoc) {}
@@ -69,7 +69,7 @@ std::string Signer::turnSignReadable(const unsigned char *signature, const unsig
     return ss.str();
 }
 
-
+*/
 
 
 

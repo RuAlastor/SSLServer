@@ -2,7 +2,7 @@
 
 using namespace Sorokin;
 
-
+/*
 Parser::Parser(std::string* xmlFile,
                std::list<std::string>* externalList) noexcept : _xmlFile(xmlFile),
                                                                 _xmlParser(nullptr),
@@ -63,5 +63,5 @@ void Parser::rebuildDocument(const std::list<std::string>& signatures, const std
     _xmlFile->clear();
     *_xmlFile = _xmlParser->get_document()->write_to_string().c_str();
 }
-
+*/
 

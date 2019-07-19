@@ -1,17 +1,38 @@
 #ifndef MASTERSERVER_H
 #define MASTERSERVER_H
 
-#include "parser.h"
-#include "signer.h"
+#include "headers.h"
+#include "exceptions.h"
 
 namespace Sorokin {
 
+    class Socket {
+
+    public:
+        Socket() noexcept;
+        virtual ~Socket() noexcept(false);
+
+    protected:
+        int _socketfd;
+
+        int setNonBlock(int& fd) noexcept;
+
+    private:
+        Socket(const Socket&) = delete;
+        Socket(Socket&&) = delete;
+        Socket& operator =(const Socket&) = delete;
+        Socket& operator =(Socket&&) = delete;
+
+    };
+
+/*
     struct SlaveSocketInfo {
         int _fd;
         sockaddr_in* _slaveSocketInfo;
         socklen_t* _slaveSocketInfoLen;
     };
-
+*/
+/*
     class Socket {
 
     public:
@@ -42,7 +63,8 @@ namespace Sorokin {
         }
 
     };
-
+*/
+/*
     class MasterSocket : public Socket {
 
     public:
@@ -104,6 +126,7 @@ namespace Sorokin {
         socklen_t* _socketInfoLen;
 
     };
+*/
 
 }
 

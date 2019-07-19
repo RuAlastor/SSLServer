@@ -7,6 +7,7 @@
 
 namespace Sorokin {
 
+/*
     class Server {
 
     public:
@@ -34,6 +35,7 @@ namespace Sorokin {
         void GetSignSend() noexcept(false);
 
     };
+*/
 
 }
 

@@ -6,6 +6,25 @@
 // Master-socket exceptions
 namespace Sorokin {
 
+    class SocketError : public std::exception {
+
+    public:
+        inline SocketError() noexcept : _errorMsg("Socket error!") {}
+        SocketError(const std::string& inputMsg) noexcept : _errorMsg(inputMsg) {}
+
+        virtual ~SocketError() = default;
+
+        SocketError(const SocketError&) = default;
+        SocketError(SocketError&&) = default;
+        SocketError& operator =(const SocketError&) = default;
+        SocketError& operator =(SocketError&&) = default;
+
+    private:
+        std::string _errorMsg;
+
+    };
+
+/*
     class MasterSocketException : public std::exception {
 
     public:
@@ -183,6 +202,7 @@ namespace Sorokin {
         }
 
     };
+*/
 
 }
 

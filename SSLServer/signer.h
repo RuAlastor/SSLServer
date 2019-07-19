@@ -6,6 +6,7 @@
 
 namespace Sorokin {
 
+/*
     class Signer {
 
     public:
@@ -33,6 +34,7 @@ namespace Sorokin {
         std::string turnSignReadable(const unsigned char* signature, const unsigned int& signatureLength) noexcept(false);
 
     };
+*/
 
 }
 

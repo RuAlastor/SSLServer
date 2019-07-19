@@ -2,6 +2,7 @@
 
 using namespace Sorokin;
 
+/*
 // SERVER
 
 Server::Server() noexcept : _masterSocketPtr(nullptr), _slaveSocektPtr(nullptr), _pwd(nullptr) {}
@@ -60,4 +61,4 @@ void Server::GetSignSend() noexcept(false) {
         throw SlaveSocketException();
     }
 }
-
+*/

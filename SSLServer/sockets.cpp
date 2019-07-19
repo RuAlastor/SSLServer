@@ -2,7 +2,43 @@
 
 using namespace Sorokin;
 
+Socket::Socket() noexcept : _socketfd(-1) {}
 
+Socket::~Socket() noexcept(false) {
+    // Check if socket was opened in the first place
+    if (_socketfd != -1) {
+        // Try to shutdown
+        if (shutdown(_socketfd, SHUT_RDWR) != 0) {
+            error_t errorNum = errno;
+            char* errorMsg = nullptr;
+            int errorMsgSize = 0;
+            if (strerror_r(errorNum, errorMsg, errorMsgSize) == 0) {
+                SocketError error(std::string(errorMsg, errorMsgSize));
+                throw error;
+            }
+            else {
+                SocketError error;
+                throw error;
+            }
+        }
+        // Try to delete descriptor afterwards
+        if (close(_socketfd) != 0) {
+            error_t errorNum = errno;
+            char* errorMsg = nullptr;
+            int errorMsgSize = 0;
+            if (strerror_r(errorNum, errorMsg, errorMsgSize) == 0) {
+                SocketError error(std::string(errorMsg, errorMsgSize));
+                throw error;
+            }
+            else {
+                SocketError error;
+                throw error;
+            }
+        }
+    }
+}
+
+/*
 // MASTER SOCKET
 
 MasterSocket::MasterSocket(int port) noexcept : _ip(INADDR_LOOPBACK),
@@ -150,6 +186,6 @@ void SlaveSocket::SendFile() noexcept(false) {
         throw SlaveSocketSendingError();
     }
 }
-
+*/
 
 

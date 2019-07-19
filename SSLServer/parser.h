@@ -6,6 +6,7 @@
 
 namespace Sorokin {
 
+/*
     class Parser {
 
     public:
@@ -29,6 +30,7 @@ namespace Sorokin {
         std::list<std::string>* _tempStorage;
 
     };
+*/
 
 }
 
