@@ -1,9 +1,6 @@
 #ifndef SIGNER_H
 #define SIGNER_H
 
-#include "headers.h"
-#include "exceptions.h"
-
 namespace Sorokin {
 
 /*

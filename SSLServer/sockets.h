@@ -10,12 +10,36 @@ namespace Sorokin {
 
     public:
         Socket() noexcept;
-        virtual ~Socket() noexcept(false);
+        virtual ~Socket() noexcept = default;
+
+        int setUpSocket(const int domain     = AF_INET,
+                        const int type       = SOCK_STREAM,
+                        const int protocol   = 0
+                        ) noexcept;
+        int setUpSocketInfo(const int domain      = AF_INET,
+                       const in_addr_t ip    = INADDR_LOOPBACK,
+                       const int port        = 12345
+                       ) noexcept(false);
+
+
+        int getSocketfd() const noexcept {
+            return _socketfd;
+        }
+        const sockaddr_in* getSocketInfo() const noexcept {
+            return _socketInfo;
+        }
+
+
+        void deleteSocketInfo() noexcept(false);
+        void closeDescriptor() throw(SocketError);
 
     protected:
         int _socketfd;
+        sockaddr_in* _socketInfo;
 
-        int setNonBlock(int& fd) noexcept;
+        int setNonBlock(int& fd) noexcept;        
+        void printCError(std::string preErrorMsg) noexcept;
+        void throwCError() noexcept(false);
 
     private:
         Socket(const Socket&) = delete;
@@ -24,6 +48,33 @@ namespace Sorokin {
         Socket& operator =(Socket&&) = delete;
 
     };
+
+    // int shutdownConnection() noexcept;
+    /*
+    int Socket::shutdownConnection() noexcept {
+        if (_socketfd != -1) {
+            if (shutdown(_socketfd, SHUT_RDWR) != 0) {
+                this->printCError("Can't shutdown connection: ");
+                return -1;
+            }
+        }
+        return 0;
+    }
+    */
+
+    // int sendString(const std::string& strToSend) noexcept(false);
+    /*
+    int Socket::sendString(const std::string& strToSend) noexcept(false) {
+        uint16_t strLen = static_cast<uint16_t>(strToSend.size());
+        int sResult = send(_socketfd, reinterpret_cast<const char*>(&strLen), sizeof(uint16_t), 0);
+        if (sResult <= 0) {
+            this->printCError("Failed to send data: ");
+            return -1;
+        }
+        // Continue here
+        return 0;
+    }
+    */
 
 /*
     struct SlaveSocketInfo {

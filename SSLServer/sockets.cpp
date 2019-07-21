@@ -2,52 +2,97 @@
 
 using namespace Sorokin;
 
-Socket::Socket() noexcept : _socketfd(-1) {}
+Socket::Socket() noexcept : _socketfd(-1), _socketInfo(nullptr) {}
 
-Socket::~Socket() noexcept(false) {
-    // Check if socket was opened in the first place
+int Socket::setUpSocket(const int domain    /* = AF_INET */,
+                        const int type      /* = SOCK_STREAM */,
+                        const int protocol  /* = 0 */
+                        ) noexcept {
+    _socketfd = socket(domain, type, protocol);
+    if (_socketfd == -1) {
+        std::cout << "Failed to create socket!\n";
+        return -1;
+    }
+    std::cout << "Socket created!\n";
+    return 0;
+}
+
+int Socket::setUpSocketInfo(const int domain     /* = AF_INET */,
+                       const in_addr_t ip   /* = INADDR_LOOPBACK */,
+                       const int port       /* = 12345 */
+                       ) noexcept(false) {
+    try {
+        _socketInfo = new sockaddr_in;
+    }
+    catch (...) {
+        std::cout << "Failed to set socket info!\n";
+        return -1;
+    }
+
+    memset(_socketInfo, 0, sizeof(*_socketInfo));
+
+    _socketInfo->sin_family = domain;
+    _socketInfo->sin_port = htons(port);
+    _socketInfo->sin_addr.s_addr = htonl(ip);
+
+    std::cout << "Socket info is set!\n";
+    return 0;
+}
+
+void Socket::deleteSocketInfo() noexcept(false) {
+    delete _socketInfo;
+}
+
+void Socket::closeDescriptor() throw(SocketError) {
     if (_socketfd != -1) {
-        // Try to shutdown
-        if (shutdown(_socketfd, SHUT_RDWR) != 0) {
-            error_t errorNum = errno;
-            char* errorMsg = nullptr;
-            int errorMsgSize = 0;
-            if (strerror_r(errorNum, errorMsg, errorMsgSize) == 0) {
-                SocketError error(std::string(errorMsg, errorMsgSize));
-                throw error;
-            }
-            else {
-                SocketError error;
-                throw error;
-            }
-        }
-        // Try to delete descriptor afterwards
         if (close(_socketfd) != 0) {
-            error_t errorNum = errno;
-            char* errorMsg = nullptr;
-            int errorMsgSize = 0;
-            if (strerror_r(errorNum, errorMsg, errorMsgSize) == 0) {
-                SocketError error(std::string(errorMsg, errorMsgSize));
-                throw error;
-            }
-            else {
-                SocketError error;
-                throw error;
-            }
+            this->throwCError();
         }
+    }
+    std::cout << "Descriptor succesfully closed!\n";
+}
+
+void Socket::printCError(std::string preErrorMsg) noexcept {
+    error_t errorNum = errno;
+    const size_t bufMsgSize = 256;
+    char* bufMsg = new char[bufMsgSize];
+    bufMsg[0] = '\0';
+    char* errorMsg = nullptr;
+
+    errorMsg = strerror_r(errorNum, bufMsg, bufMsgSize);
+    if (strlen(bufMsg) == 0) {
+        std::cout << preErrorMsg << errorMsg << '\n';
+    }
+    else {
+        std::cout << preErrorMsg << bufMsg << '\n';
+    }
+    delete[] bufMsg;
+
+    bufMsg = nullptr;
+}
+
+void Socket::throwCError() noexcept(false) {
+    error_t errorNum = errno;
+    const size_t bufMsgSize = 256;
+    char* bufMsg = new char[bufMsgSize];
+    bufMsg[0] = '\0';
+    char* errorMsg = nullptr;
+
+    errorMsg = strerror_r(errorNum, bufMsg, bufMsgSize);
+    if (strlen(bufMsg) == 0) {
+        SocketError error(errorMsg);
+        delete[] bufMsg;
+        throw error;
+    }
+    else {
+        SocketError error(bufMsg);
+        delete[] bufMsg;
+        throw error;
     }
 }
 
 /*
 // MASTER SOCKET
-
-MasterSocket::MasterSocket(int port) noexcept : _ip(INADDR_LOOPBACK),
-                                                _port(port),
-                                                _masterSocket(-1) {}
-MasterSocket::~MasterSocket() noexcept {
-    shutdown(_masterSocket, SHUT_RDWR);
-    close(_masterSocket);
-}
 
 void MasterSocket::Start() noexcept(false) {
     // Initialize server

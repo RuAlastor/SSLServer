@@ -9,18 +9,40 @@ namespace Sorokin {
     class SocketError : public std::exception {
 
     public:
-        inline SocketError() noexcept : _errorMsg("Socket error!") {}
-        SocketError(const std::string& inputMsg) noexcept : _errorMsg(inputMsg) {}
+        SocketError() noexcept : _errorMsg(nullptr) {}
+        SocketError(const char* inputMsg) noexcept {
+            _errorMsg = new char[strlen(inputMsg)];
+            strcpy(_errorMsg, inputMsg);
+        }
 
-        virtual ~SocketError() = default;
+        virtual ~SocketError() noexcept {
+            delete[] _errorMsg;
+        }
 
-        SocketError(const SocketError&) = default;
-        SocketError(SocketError&&) = default;
-        SocketError& operator =(const SocketError&) = default;
-        SocketError& operator =(SocketError&&) = default;
+        SocketError(const SocketError& other) noexcept {
+            _errorMsg = new char[strlen(other._errorMsg)];
+            strcpy(this->_errorMsg, other._errorMsg);
+        }
+        SocketError(SocketError&& other) {
+            _errorMsg = new char[strlen(other._errorMsg)];
+            this->_errorMsg = other._errorMsg;
+            other._errorMsg = nullptr;
+        }
+
+        virtual const char* what() const noexcept {
+            if (_errorMsg != nullptr) {
+                return _errorMsg;
+            }
+            else {
+                return "Unknown socket error!";
+            }
+        }
 
     private:
-        std::string _errorMsg;
+        char* _errorMsg;
+
+        SocketError& operator =(const SocketError&) = delete;
+        SocketError& operator =(SocketError&&) = delete;
 
     };
 

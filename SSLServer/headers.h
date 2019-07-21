@@ -5,7 +5,6 @@
 #include <iostream>
 #include <errno.h>          // Needed to check errors in C-functions
 #include <string.h>         // Needed to transform error into readable state
-#include <stdlib.h>
 
 // Server libs
 #include <sys/socket.h>     /// Main posix-socket library

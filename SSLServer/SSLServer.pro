@@ -9,10 +9,10 @@ SOURCES += main.cpp \
     server.cpp \
     sockets.cpp
 
-LIBS += -lcrypto
+#LIBS += -lcrypto
 
-unix: CONFIG += link_pkgconfig
-unix: PKGCONFIG += libssl
+#unix: CONFIG += link_pkgconfig
+#unix: PKGCONFIG += libssl
 
 HEADERS += \
     headers.h \
@@ -22,4 +22,4 @@ HEADERS += \
     sockets.h \
     server.h
 
-unix: PKGCONFIG += libxml++-2.6
+#unix: PKGCONFIG += libxml++-2.6
