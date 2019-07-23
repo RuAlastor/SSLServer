@@ -29,7 +29,7 @@ namespace Sorokin {
                         const int protocol   = 0
                         ) noexcept;
         /**
-         * @brief setSocket - returns reference to a socket to set
+         * @brief accessSocket - returns reference to a socket to set
          * @return reference to a socket descriptor variable
          *
          * You need to use <closeDescriptor> method before if previously you've created socket var

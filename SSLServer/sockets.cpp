@@ -4,7 +4,7 @@ using namespace Sorokin;
 
 Socket::Socket() noexcept : _socketfd(-1), _socketInfo(nullptr) {}
 
-int Socket::setUpSocket(const int domain    /* = AF_INET */,
+int Socket::setSocket(const int domain    /* = AF_INET */,
                         const int type      /* = SOCK_STREAM */,
                         const int protocol  /* = 0 */
                         ) noexcept {
@@ -17,10 +17,10 @@ int Socket::setUpSocket(const int domain    /* = AF_INET */,
     return 0;
 }
 
-int Socket::setUpSocketInfo(const int domain     /* = AF_INET */,
+int Socket::setSocketInfo(const int domain     /* = AF_INET */,
                        const in_addr_t ip   /* = INADDR_LOOPBACK */,
                        const int port       /* = 12345 */
-                       ) noexcept(false) {
+                       ) noexcept {
     try {
         _socketInfo = new sockaddr_in;
     }
@@ -39,8 +39,11 @@ int Socket::setUpSocketInfo(const int domain     /* = AF_INET */,
     return 0;
 }
 
+
 void Socket::deleteSocketInfo() noexcept(false) {
     delete _socketInfo;
+    _socketInfo = nullptr;
+    std::cout << "Socket info was succesfully deleted!\n";
 }
 
 void Socket::closeDescriptor() throw(SocketError) {
@@ -49,26 +52,20 @@ void Socket::closeDescriptor() throw(SocketError) {
             this->throwCError();
         }
     }
-    std::cout << "Descriptor succesfully closed!\n";
+    std::cout << "Descriptor was succesfully destroyed!\n";
 }
 
-void Socket::printCError(std::string preErrorMsg) noexcept {
-    error_t errorNum = errno;
-    const size_t bufMsgSize = 256;
-    char* bufMsg = new char[bufMsgSize];
-    bufMsg[0] = '\0';
-    char* errorMsg = nullptr;
-
-    errorMsg = strerror_r(errorNum, bufMsg, bufMsgSize);
-    if (strlen(bufMsg) == 0) {
-        std::cout << preErrorMsg << errorMsg << '\n';
+int Socket::setNonBlock() noexcept {
+    int flags;
+#ifdef O_NONBLOCK
+    if ((flags = fcntl(_socketfd, F_GETFL, 0)) == -1) {
+        flags = 0;
     }
-    else {
-        std::cout << preErrorMsg << bufMsg << '\n';
-    }
-    delete[] bufMsg;
-
-    bufMsg = nullptr;
+    return fcntl(_socketfd, F_SETFL, flags | O_NONBLOCK);
+#else
+    flags = 1;
+    return ioctl(_socketfd, FIOBIO, &flags);
+#endif
 }
 
 void Socket::throwCError() noexcept(false) {
@@ -79,158 +76,9 @@ void Socket::throwCError() noexcept(false) {
     char* errorMsg = nullptr;
 
     errorMsg = strerror_r(errorNum, bufMsg, bufMsgSize);
-    if (strlen(bufMsg) == 0) {
-        SocketError error(errorMsg);
-        delete[] bufMsg;
-        throw error;
-    }
-    else {
-        SocketError error(bufMsg);
-        delete[] bufMsg;
-        throw error;
-    }
+    SocketError error(errorMsg);
+
+    delete[] bufMsg;
+    bufMsg = nullptr;
+    throw error;
 }
-
-/*
-// MASTER SOCKET
-
-void MasterSocket::Start() noexcept(false) {
-    // Initialize server
-    _masterSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (_masterSocket == -1) {
-        throw MasterSocketInitError();
-    }
-    std::cout << "Socket was initialized!\n";
-
-    // Set socket info
-    sockaddr_in socketInfo;
-    memset(&socketInfo.sin_zero, 0, sizeof(socketInfo.sin_zero));
-    socketInfo.sin_family = AF_INET;
-    socketInfo.sin_addr.s_addr = htonl(_ip);
-    socketInfo.sin_port = htons(_port);
-
-    // Bind socket
-    if (bind(_masterSocket, reinterpret_cast<sockaddr*>(&socketInfo), sizeof(socketInfo)) == -1) {
-        throw MasterSocketBindError();
-    }
-    std::cout << "Socket was binded!\n";
-
-    // Set to listen
-    if (listen(_masterSocket, 1) == -1) {
-        throw MasterSocketListenError();
-    }
-    std::cout << "Socket was set to listen!\n";
-}
-
-void MasterSocket::CloseConnection() noexcept {
-    shutdown(_masterSocket, SHUT_RDWR);
-    close(_masterSocket);
-}
-
-SlaveSocketInfo MasterSocket::Handle() noexcept(false) {
-    std::cout << "Waiting for connection...\n";
-
-    SlaveSocketInfo tmp;
-    tmp._slaveSocketInfo = nullptr;
-    tmp._slaveSocketInfoLen = nullptr;
-    tmp._fd = accept(_masterSocket, reinterpret_cast<sockaddr*>(tmp._slaveSocketInfo), tmp._slaveSocketInfoLen);
-    return tmp;
-}
-
-// SLAVE SOCKET
-
-SlaveSocket::SlaveSocket(int fd,
-                         const std::string* pwd,
-                         sockaddr_in* socketInfo,
-                         socklen_t* socketInfoLen) noexcept : _slaveSocket(fd),
-                                                              _pwd(pwd),
-                                                              _socketInfo(socketInfo),
-                                                              _socketInfoLen(socketInfoLen) {}
-
-SlaveSocket::~SlaveSocket() {
-    shutdown(_slaveSocket, SHUT_RDWR);
-    close(_slaveSocket);
-}
-
-void SlaveSocket::CloseConnection() noexcept {
-    shutdown(_slaveSocket, SHUT_RDWR);
-    close(_slaveSocket);
-}
-
-void SlaveSocket::RecvFile() noexcept(false) {
-    if (_slaveSocket < 0) {
-        throw SlaveSocketConnectionError();
-    }
-    std::cout << "Got a connection!\n";
-
-    // Get size of the doc
-    char* buffer = new char[sizeof(int)];
-    int rResult = recv(_slaveSocket, buffer, sizeof(int), 0);
-    if (rResult <0) {
-        throw SlaveSocketRecievingError();
-    }
-    int fileSize = 0;
-    memcpy(&fileSize, buffer, sizeof(int));
-    delete[] buffer;
-    buffer = nullptr;
-
-    // Get the doc
-    buffer = new char[fileSize];
-    rResult = recv(_slaveSocket, buffer, fileSize, 0);
-    if (rResult <0) {
-        throw SlaveSocketRecievingError();
-    }
-
-    // Copy the doc to the string
-    _xmlFileIn.clear();
-    for (int i = 0; i < fileSize; i++) {
-        _xmlFileIn += buffer[i];
-    }
-    std::cout << "Got the document!\n";
-    delete[] buffer;
-    buffer = nullptr;
-}
-
-void SlaveSocket::SignFile() noexcept(false) {
-    std::list<std::string> strsToSign;
-
-    Parser xmlParser(&_xmlFileIn, &strsToSign);
-    try {
-        xmlParser.loadDocument();
-        xmlParser.parseDocument();
-    }
-    catch (std::exception& error) {
-        xmlParser.Clear();
-        std::cout << error.what() << '\n';
-        throw ParserException();
-    }
-
-    Signer signer(*_pwd);
-
-    std::list<std::string> signedStrs;
-    for (const auto iter : strsToSign) {
-        signedStrs.push_back(signer.SignString(iter));
-    }
-
-    std::string publicKey = signer.GetPublicKey();
-
-    xmlParser.rebuildDocument(signedStrs, publicKey);
-}
-
-void SlaveSocket::SendFile() noexcept(false) {
-    // Send size of the doc
-    int fileSize = _xmlFileIn.size();
-    int sResult = send(_slaveSocket, reinterpret_cast<const char*>(&fileSize), sizeof(int), 0);
-    if (sResult <= 0) {
-        throw SlaveSocketSendingError();
-    }
-
-    // Send doc
-    sResult = send(_slaveSocket, _xmlFileIn.c_str(), fileSize, 0);
-    if (sResult <= 0) {
-        throw SlaveSocketSendingError();
-    }
-}
-*/
-
-

@@ -24,7 +24,6 @@ namespace Sorokin {
             strcpy(this->_errorMsg, other._errorMsg);
         }
         SocketError(SocketError&& other) {
-            _errorMsg = new char[strlen(other._errorMsg)];
             this->_errorMsg = other._errorMsg;
             other._errorMsg = nullptr;
         }

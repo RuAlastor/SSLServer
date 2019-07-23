@@ -1,15 +1,29 @@
-#include "sockets.h"
+#include "server.h"
 
 int main() {
+    Sorokin::Server _server;
 
-    Sorokin::Socket _server;
-    if (_server.setUpSocket() || _server.setUpSocketInfo()) {
+    if (_server.setSocket()) {
         return -1;
     }
+    if (_server.setUpListener()) {
+        try {
+            _server.deleteSocket();
+        }
+        catch (std::exception& error) {
+            std::cout << error.what() << '\n';
+        }
+        return -1;
+    }
+    Sorokin::Server _slave;
+    _server.getConnection(_slave.accessSocket());
+
+
+    _server.closeConnection();
 
     try {
-        _server.deleteSocketInfo();
-        _server.closeDescriptor();
+        _slave.deleteSocket();
+        _server.deleteSocket();
     }
     catch (std::exception& error) {
         std::cout << error.what() << '\n';
