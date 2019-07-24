@@ -2,22 +2,26 @@
 
 using namespace Sorokin;
 
+//-----------------------------------------------------------------------------------------------------------------------------
+
 Socket::Socket() noexcept : _socketfd(-1), _socketInfo(nullptr) {}
 
-int Socket::setSocket(const int domain    /* = AF_INET */,
+Socket::err Socket::setSocket(const int domain    /* = AF_INET */,
                         const int type      /* = SOCK_STREAM */,
                         const int protocol  /* = 0 */
                         ) noexcept {
     _socketfd = socket(domain, type, protocol);
     if (_socketfd == -1) {
         std::cout << "Failed to create socket!\n";
-        return -1;
+        return undefinedError;
     }
     std::cout << "Socket created!\n";
-    return 0;
+    return noError;
 }
 
-int Socket::setSocketInfo(const int domain     /* = AF_INET */,
+//-----------------------------------------------------------------------------------------------------------------------------
+
+Socket::err Socket::setSocketInfo(const int domain     /* = AF_INET */,
                        const in_addr_t ip   /* = INADDR_LOOPBACK */,
                        const int port       /* = 12345 */
                        ) noexcept {
@@ -26,7 +30,7 @@ int Socket::setSocketInfo(const int domain     /* = AF_INET */,
     }
     catch (...) {
         std::cout << "Failed to set socket info!\n";
-        return -1;
+        return undefinedError;
     }
 
     memset(_socketInfo, 0, sizeof(*_socketInfo));
@@ -36,8 +40,10 @@ int Socket::setSocketInfo(const int domain     /* = AF_INET */,
     _socketInfo->sin_addr.s_addr = htonl(ip);
 
     std::cout << "Socket info is set!\n";
-    return 0;
+    return noError;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
 
 void Socket::deleteSocketInfo() noexcept(false) {
@@ -46,7 +52,9 @@ void Socket::deleteSocketInfo() noexcept(false) {
     std::cout << "Socket info was succesfully deleted!\n";
 }
 
-void Socket::closeDescriptor() throw(SocketError) {
+//-----------------------------------------------------------------------------------------------------------------------------
+
+void Socket::closeDescriptor() noexcept(false) {
     if (_socketfd != -1) {
         if (close(_socketfd) != 0) {
             this->throwCError();
@@ -54,6 +62,8 @@ void Socket::closeDescriptor() throw(SocketError) {
     }
     std::cout << "Descriptor was succesfully destroyed!\n";
 }
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
 int Socket::setNonBlock() noexcept {
     int flags;
@@ -67,6 +77,8 @@ int Socket::setNonBlock() noexcept {
     return ioctl(_socketfd, FIOBIO, &flags);
 #endif
 }
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
 void Socket::throwCError() noexcept(false) {
     error_t errorNum = errno;
@@ -82,3 +94,5 @@ void Socket::throwCError() noexcept(false) {
     bufMsg = nullptr;
     throw error;
 }
+
+//-----------------------------------------------------------------------------------------------------------------------------

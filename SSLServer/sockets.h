@@ -13,6 +13,11 @@ namespace Sorokin {
     class Socket {
 
     public:
+        enum err {
+            undefinedError = -1,
+            noError = 0
+        };
+
         /// @defgroup Socket_setup_methods
         /// @{
         /// @brief Socket - default constructor
@@ -24,19 +29,17 @@ namespace Sorokin {
          * @param[in] protocol - protocol type. Defines type of transport-protocol
          * @return 0 if no error occured, -1 otherwise
          */
-        int setSocket(const int domain     = AF_INET,
+        err setSocket(const int domain     = AF_INET,
                         const int type       = SOCK_STREAM,
                         const int protocol   = 0
                         ) noexcept;
         /**
-         * @brief setSocket - returns reference to a socket to set
+         * @brief accessSocket - returns reference to a socket to set
          * @return reference to a socket descriptor variable
          *
          * You need to use <closeDescriptor> method before if previously you've created socket var
          */
-        int& accessSocket()& noexcept {
-            return _socketfd;
-        }
+        inline int& accessSocket()& noexcept { return _socketfd; }
         /**
          * @brief setSocketInfo - allocates memory for <sockaddr_in> structure
          * @param[in] domain - socket domain. Defines ip-protocol
@@ -44,7 +47,7 @@ namespace Sorokin {
          * @param[in] port - server port
          * @return 0 if no error occured, -1 otherwise
          */
-        int setSocketInfo(const int domain      = AF_INET,
+        err setSocketInfo(const int domain      = AF_INET,
                        const in_addr_t ip    = INADDR_LOOPBACK,
                        const int port        = 12345
                        ) noexcept;
@@ -54,22 +57,15 @@ namespace Sorokin {
          *
          * You need to use <deleteSocketInfo> method before if previously you've already set it
          */
-        sockaddr_in*& accessSocketInfo()& noexcept(false) {
-            return _socketInfo;
-        }
-
+        inline sockaddr_in*& accessSocketInfo()& noexcept(false) { return _socketInfo; }
         /// @}
 
         /// @defgroup Socket_getters
         /// @{
         /// @brief gives a copy of the socket file descriptor
-        int getSocketfd() const noexcept {
-            return _socketfd;
-        }
+        inline int getSocketfd() const noexcept { return _socketfd; }
         /// @brief gives a reference to a constant <sockaddr_in> structure
-        const sockaddr_in* getSocketInfo() const noexcept {
-            return _socketInfo;
-        }
+        inline const sockaddr_in* getSocketInfo() const noexcept { return _socketInfo; }
         /// @}
 
         /// @defgroup Socket_closing_methods
@@ -77,7 +73,7 @@ namespace Sorokin {
         /// @brief deletes <sockaddr_in> structure
         void deleteSocketInfo() noexcept(false);
         /// @brief destroys descriptor
-        void closeDescriptor() throw(SocketError);
+        void closeDescriptor() noexcept(false);
         /// @brief ~Socket - default destructor
         virtual ~Socket() noexcept = default;
         /// @}

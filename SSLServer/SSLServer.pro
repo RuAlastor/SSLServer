@@ -7,7 +7,8 @@ SOURCES += main.cpp \
     parser.cpp \
     signer.cpp \
     server.cpp \
-    sockets.cpp
+    sockets.cpp \
+    slave.cpp
 
 #LIBS += -lcrypto
 
@@ -20,6 +21,7 @@ HEADERS += \
     signer.h \
     exceptions.h \
     sockets.h \
-    server.h
+    server.h \
+    slave.h
 
 #unix: PKGCONFIG += libxml++-2.6

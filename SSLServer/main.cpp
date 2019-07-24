@@ -1,4 +1,5 @@
 #include "server.h"
+#include "slave.h"
 
 int main() {
     Sorokin::Server _server;
@@ -15,9 +16,9 @@ int main() {
         }
         return -1;
     }
-    Sorokin::Server _slave;
+    Sorokin::Slave _slave;
     _server.getConnection(_slave.accessSocket());
-
+    _slave.closeConnection();
 
     _server.closeConnection();
 
