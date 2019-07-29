@@ -2,11 +2,12 @@
 #define SLAVE_H
 
 #include "headers.h"
-#include "exceptions.h"
 #include "sockets.h"
 
 
 namespace Sorokin {
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
     class Slave {
 
@@ -16,6 +17,7 @@ namespace Sorokin {
             noError = 0
         };
 
+    public:
         Slave() noexcept : _slaveSocket(nullptr) {}
         Socket*& accessSocket()& noexcept(false) {
             return _slaveSocket;
@@ -24,13 +26,14 @@ namespace Sorokin {
         virtual err sendString(const std::string& strToSend) noexcept(false);
         virtual err recvString(std::string& strToRecv) noexcept(false);
 
-        err closeConnection() noexcept(false);
-        void deleteSocket() noexcept(false);
-        ~Slave() = default;
+        virtual err closeConnection() noexcept(false);
+        virtual void deleteSocket() noexcept(false);
+        virtual ~Slave() = default;
 
     protected:
         Socket* _slaveSocket;
 
+    protected:
         /**
          * @brief printCError - prints <errno> msg
          * @param preErrorMsg - msg which will be printed before <errno> msg
@@ -43,6 +46,8 @@ namespace Sorokin {
         Slave& operator =(const Slave&) = delete;
         Slave& operator =(Slave&&) = delete;
     };
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
 }
 

@@ -12,16 +12,15 @@ SOURCES += main.cpp \
 
 #LIBS += -lcrypto
 
-#unix: CONFIG += link_pkgconfig
+unix: CONFIG += link_pkgconfig
 #unix: PKGCONFIG += libssl
 
 HEADERS += \
     headers.h \
     parser.h \
     signer.h \
-    exceptions.h \
     sockets.h \
     server.h \
     slave.h
 
-#unix: PKGCONFIG += libxml++-2.6
+unix: PKGCONFIG += libxml++-2.6

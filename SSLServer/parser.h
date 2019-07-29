@@ -1,33 +1,43 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "headers.h"
+
 namespace Sorokin {
 
-/*
+//-----------------------------------------------------------------------------------------------------------------------------
+
     class Parser {
 
+        typedef std::list<std::string> list_str;
+
     public:
-        Parser(std::string* xmlFile, std::list<std::string>* externalList) noexcept;
-        ~Parser() noexcept;
+        enum {
+            unknownError = -1,
+            noError = 0
+        };
 
-        Parser() = delete;
-        Parser(const Parser& other) = delete;
-        Parser(Parser&& other) = delete;
-        Parser& operator=(const Parser& other) = delete;
-        Parser& operator=(Parser&& other) = delete;
+    public:
+        Parser() = default;
+        ~Parser() = default;
 
-        void Clear() noexcept;
-        void loadDocument() noexcept(false);
-        void parseDocument() noexcept(false);
-        void rebuildDocument(const  std::list<std::string>& signatures, const std::string& publicKey) noexcept;
+        std::list<std::string>* parseDocument(const std::string& xmlDocument) noexcept(false);
+        inline void tryToCleanUp() noexcept(false) { xmlCleanupParser(); }
 
     private:
-        std::string* _xmlFile;
-        xmlpp::DomParser* _xmlParser;
-        std::list<std::string>* _tempStorage;
+        xmlpp::DomParser* __loadDocument(const std::string& xmlDocument) noexcept;
+        std::list<std::string>* __fillList(const xmlpp::DomParser* xmlParser) noexcept(false);
+        std::string __getClientText(const xmlpp::Element* client) noexcept(false);
+
+    private:
+        Parser(const Parser&) = delete;
+        Parser(Parser&&) = delete;
+        Parser& operator =(const Parser&) = delete;
+        Parser& operator =(Parser&&) = delete;
 
     };
-*/
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
 }
 

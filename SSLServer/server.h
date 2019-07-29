@@ -3,10 +3,11 @@
 #define SERVER_H
 
 #include "headers.h"
-#include "exceptions.h"
 #include "sockets.h"
 
 namespace Sorokin {
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
     /**
      * @brief The Server class - implementation of master-socket manager
@@ -19,6 +20,7 @@ namespace Sorokin {
             noError = 0
         };
 
+    public:
         /// @defgroup Server_setup_methods
         /// @{
         /// @brief Default constructor
@@ -32,16 +34,16 @@ namespace Sorokin {
          * @param[in] port - server port
          * @return 0 if no error occured, -1 else
          */
+        /// @brief allows to set socket with already created object
+        /// @return reference to a pointer to the <Socket> structure
+        /// You need to use <deleteSocket> method before if <Socket> object was created previously
+        inline Socket*& accessSocket()& noexcept { return _masterSocket; }
         err setSocket(const int domain        = AF_INET,
                       const int type          = SOCK_STREAM,
                       const int protocol      = 0,
                       const in_addr_t ip      = INADDR_LOOPBACK,
                       const int port          = 12345
                       ) noexcept;
-        /// @brief allows to set socket with already created object
-        /// @return reference to a pointer to the <Socket> structure
-        /// You need to use <deleteSocket> method before if <Socket> object was created previously
-        inline Socket*& accessSocket()& noexcept { return _masterSocket; }
         /**
          * @brief setUpListener binds socket according to socket info and sets it to listen
          * @return 0 if no error occured, -1 else
@@ -78,12 +80,12 @@ namespace Sorokin {
     private:
         Socket* _masterSocket;
 
+    private:
         /**
          * @brief printCError - prints <errno> msg
          * @param preErrorMsg - msg which will be printed before <errno> msg
          */
         void printCError(std::string preErrorMsg) noexcept(false);
-
         /// @defgroup Server_deleted_methods
         /// @{
         /// Deleted copy constructor
@@ -97,6 +99,8 @@ namespace Sorokin {
         /// @}
 
     };
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
 }
 

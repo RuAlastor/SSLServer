@@ -83,26 +83,27 @@ void Client::Get() noexcept(false) {
         throw FileError();
     }
 
-    char* buffer = new char[sizeof(int)];
-    int rResult = recv(_masterSocket, buffer, sizeof(int), 0);
+    uint32_t bufSize = 0;
+    int rResult = recv(_masterSocket, reinterpret_cast<char*>(&bufSize), sizeof(uint32_t), 0);
     if (rResult <0) {
         throw ClientRecvError();
     }
-    int fileSizeRecieved = 0;
-    memcpy(&fileSizeRecieved, buffer, sizeof(int));
-    delete[] buffer;
-    buffer = new char[fileSizeRecieved];
-    rResult = recv(_masterSocket, buffer, fileSizeRecieved, 0);
+    char* buffer = new char[bufSize];
+    rResult = recv(_masterSocket, buffer, bufSize, 0);
     if (rResult <0) {
         throw ClientRecvError();
     }
+
+    std::cout << "Bytes recieved: " << rResult << '\n'
+              << "Message: ";
 
     std::cout << "Got the document!\n";
-    std::cout << rResult << '\n';
 
-    for (int i = 0; i < fileSizeRecieved; i++) {
-        xmlWriter << buffer[i];
+    std::cout << "Bytes recieved: " << rResult << '\n';
+    for (uint32_t i = 0; i < bufSize; i++) {
+        std::cout << buffer[i];
     }
+
     xmlWriter.close();
     delete[] buffer;
 

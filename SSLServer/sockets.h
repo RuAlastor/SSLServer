@@ -3,9 +3,52 @@
 #define MASTERSERVER_H
 
 #include "headers.h"
-#include "exceptions.h"
 
 namespace Sorokin {
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+    /// @brief Exception type class
+    class SocketError : public std::exception {
+
+    public:
+        SocketError() noexcept : _errorMsg(nullptr) {}
+        SocketError(const char* inputMsg) noexcept {
+            _errorMsg = new char[strlen(inputMsg)];
+            strcpy(_errorMsg, inputMsg);
+        }
+        SocketError(const SocketError& other) noexcept {
+            _errorMsg = new char[strlen(other._errorMsg)];
+            strcpy(this->_errorMsg, other._errorMsg);
+        }
+        SocketError(SocketError&& other) {
+            this->_errorMsg = other._errorMsg;
+            other._errorMsg = nullptr;
+        }
+
+        virtual ~SocketError() noexcept {
+            delete[] _errorMsg;
+        }
+
+        virtual const char* what() const noexcept {
+            if (_errorMsg != nullptr) {
+                return _errorMsg;
+            }
+            else {
+                return "Unknown socket error!";
+            }
+        }
+
+    private:
+        char* _errorMsg;
+
+    private:
+        SocketError& operator =(const SocketError&) = delete;
+        SocketError& operator =(SocketError&&) = delete;
+
+    };
+
+//-----------------------------------------------------------------------------------------------------------------------------
 
      /**
      * @brief The Socket class - object implementation of posix-sockets
@@ -18,21 +61,11 @@ namespace Sorokin {
             noError = 0
         };
 
+    public:
         /// @defgroup Socket_setup_methods
         /// @{
         /// @brief Socket - default constructor
         Socket() noexcept;
-        /**
-         * @brief setSocket - creates an instance of <socket> structure
-         * @param[in] domain - socket domain. Defines ip-protocol
-         * @param[in] type - socket type. Defines transport-protocol
-         * @param[in] protocol - protocol type. Defines type of transport-protocol
-         * @return 0 if no error occured, -1 otherwise
-         */
-        err setSocket(const int domain     = AF_INET,
-                        const int type       = SOCK_STREAM,
-                        const int protocol   = 0
-                        ) noexcept;
         /**
          * @brief accessSocket - returns reference to a socket to set
          * @return reference to a socket descriptor variable
@@ -41,6 +74,24 @@ namespace Sorokin {
          */
         inline int& accessSocket()& noexcept { return _socketfd; }
         /**
+         * @brief accessSocketInfo - returns a reference to the pointer to the structure for setting
+         * @return reference to a pointer to a <sockaddr_in> structure, which points to a nullptr
+         *
+         * You need to use <deleteSocketInfo> method before if previously you've already set it
+         */
+        inline sockaddr_in*& accessSocketInfo()& noexcept(false) { return _socketInfo; }
+        /**
+         * @brief setSocket - creates an instance of <socket> structure
+         * @param[in] domain - socket domain. Defines ip-protocol
+         * @param[in] type - socket type. Defines transport-protocol
+         * @param[in] protocol - protocol type. Defines type of transport-protocol
+         * @return 0 if no error occured, -1 otherwise
+         */
+        err setSocket(const int domain     = AF_INET,
+                      const int type       = SOCK_STREAM,
+                      const int protocol   = 0
+                      ) noexcept;
+        /**
          * @brief setSocketInfo - allocates memory for <sockaddr_in> structure
          * @param[in] domain - socket domain. Defines ip-protocol
          * @param[in] ip - server ip
@@ -48,16 +99,9 @@ namespace Sorokin {
          * @return 0 if no error occured, -1 otherwise
          */
         err setSocketInfo(const int domain      = AF_INET,
-                       const in_addr_t ip    = INADDR_LOOPBACK,
-                       const int port        = 12345
-                       ) noexcept;
-        /**
-         * @brief accessSocketInfo - returns a reference to the pointer to the structure for setting
-         * @return reference to a pointer to a <sockaddr_in> structure, which points to a nullptr
-         *
-         * You need to use <deleteSocketInfo> method before if previously you've already set it
-         */
-        inline sockaddr_in*& accessSocketInfo()& noexcept(false) { return _socketInfo; }
+                          const in_addr_t ip    = INADDR_LOOPBACK,
+                          const int port        = 12345
+                          ) noexcept;
         /// @}
 
         /// @defgroup Socket_getters
@@ -79,11 +123,10 @@ namespace Sorokin {
         /// @}
 
     protected:
-        /// @brief _socketfd - socket file descriptor
         int _socketfd;
-        /// @brief _socektInfo - socket info, used to bind the socket or connect to the one
         sockaddr_in* _socketInfo;
 
+    protected:
         /// @defgroup Socket_additional_methods
         /// @{
         /**
@@ -109,6 +152,8 @@ namespace Sorokin {
         /// @}
 
     };
+//-----------------------------------------------------------------------------------------------------------------------------
+
 }
 
 #endif // MASTERSERVER_H
