@@ -15,6 +15,7 @@ namespace Sorokin {
     class Server {
 
     public:
+        /// @brief Return error types
         enum err {
             undefinedError = -1,
             noError = 0
@@ -81,11 +82,16 @@ namespace Sorokin {
         Socket* _masterSocket;
 
     private:
+        /// @defgroup Server_additional_methods
+        /// @{
         /**
          * @brief printCError - prints <errno> msg
          * @param preErrorMsg - msg which will be printed before <errno> msg
          */
         void printCError(std::string preErrorMsg) noexcept(false);
+        /// @}
+
+    private:
         /// @defgroup Server_deleted_methods
         /// @{
         /// Deleted copy constructor

@@ -4,48 +4,56 @@ using namespace Sorokin;
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-xmlpp::DomParser* Parser::__loadDocument(const std::string& xmlDocument) noexcept {
-    xmlpp::DomParser* xmlParser;
+Parser::err Parser::loadDocument(const std::string& xmlDocument) noexcept {
     try {
-        xmlParser = new xmlpp::DomParser;
-        xmlParser->parse_memory(xmlDocument.c_str());
-    }
-    catch (std::bad_alloc& error) {
-        std::cout << error.what() << '\n';
-        return nullptr;
+        _xmlParser = new xmlpp::DomParser;
+        _xmlParser->parse_memory(xmlDocument.c_str());
     }
     catch (std::exception& error) {
         std::cout <<  error.what() << '\n';
-        delete xmlParser;
-        return nullptr;
+        return unknownError;
     }
-    catch (...) {
-        std::cout << "Unknown error!\n";
-        delete xmlParser;
-        return nullptr;
-    }
-    return xmlParser;
+
+    return noError;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-std::list<std::string>* Parser::parseDocument(const std::string& xmlDocument) noexcept(false) {
-    xmlpp::DomParser* xmlParser = __loadDocument(xmlDocument);
-    if (xmlParser == nullptr) {
+Parser::err Parser::unloadDocument() noexcept {
+    try {
+        delete _xmlParser;
+        xmlCleanupParser();
+    }
+    catch (std::exception& error) {
+        std::cout << error.what() << '\n';
+        return unknownError;
+    }
+
+    return noError;
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+std::list<std::string>* Parser::parseDocument() noexcept(false) {
+    if (_xmlParser == nullptr) {
         return nullptr;
     }
 
-    list_str* returnList = __fillList(xmlParser);
+    list_str* returnList = nullptr;
+    try {
+        returnList = __fillList();
+    }
+    catch (std::exception& error) {
+        std::cout << error.what() << '\n';
+    }
 
-    delete xmlParser;
-    xmlParser = nullptr;
     return returnList;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-std::list<std::string>* Parser::__fillList(const xmlpp::DomParser* xmlParser) noexcept(false) {
-    const xmlpp::Element* root = xmlParser->get_document()->get_root_node();
+std::list<std::string>* Parser::__fillList() noexcept(false) {
+    const xmlpp::Element* root = _xmlParser->get_document()->get_root_node();
     list_str* returnList = nullptr;
     if (root != nullptr) {
         returnList = new list_str;

@@ -10,10 +10,10 @@ SOURCES += main.cpp \
     sockets.cpp \
     slave.cpp
 
-#LIBS += -lcrypto
+LIBS += -lcrypto
 
 unix: CONFIG += link_pkgconfig
-#unix: PKGCONFIG += libssl
+unix: PKGCONFIG += libssl
 
 HEADERS += \
     headers.h \

@@ -12,24 +12,41 @@ namespace Sorokin {
     class SocketError : public std::exception {
 
     public:
+        /// @defgroup Socket_except_setup_methods
+        /// @{
+        /// @brief Default constructor
         SocketError() noexcept : _errorMsg(nullptr) {}
+        /**
+         * @brief SocketError - constructor with an argument
+         * @param[in] inputMsg - error message
+         */
         SocketError(const char* inputMsg) noexcept {
             _errorMsg = new char[strlen(inputMsg)];
             strcpy(_errorMsg, inputMsg);
         }
+        /// @brief Default copy constructor
         SocketError(const SocketError& other) noexcept {
             _errorMsg = new char[strlen(other._errorMsg)];
             strcpy(this->_errorMsg, other._errorMsg);
         }
+        /// @brief Default move constructor
         SocketError(SocketError&& other) {
             this->_errorMsg = other._errorMsg;
             other._errorMsg = nullptr;
         }
+        /// @}
 
+        /// @defgroup Socket_except_delete_methods
+        /// @{
+        /// @brief Default destructor
         virtual ~SocketError() noexcept {
             delete[] _errorMsg;
         }
+        /// @}
 
+        /// @defgroup Socket_except_data_using_methods
+        /// @{
+        /// @brief what() - returns error message
         virtual const char* what() const noexcept {
             if (_errorMsg != nullptr) {
                 return _errorMsg;
@@ -38,13 +55,19 @@ namespace Sorokin {
                 return "Unknown socket error!";
             }
         }
+        /// @}
 
     private:
         char* _errorMsg;
 
     private:
+        /// @defgroup Socket_except_deleted_methods
+        /// @{
+        /// @brief Deleted copy assigner
         SocketError& operator =(const SocketError&) = delete;
+        /// @brief Deleted move assigner
         SocketError& operator =(SocketError&&) = delete;
+        /// @}
 
     };
 
@@ -56,6 +79,7 @@ namespace Sorokin {
     class Socket {
 
     public:
+        /// @brief Return error types
         enum err {
             undefinedError = -1,
             noError = 0
@@ -104,7 +128,7 @@ namespace Sorokin {
                           ) noexcept;
         /// @}
 
-        /// @defgroup Socket_getters
+        /// @defgroup Socket_info_using_methods
         /// @{
         /// @brief gives a copy of the socket file descriptor
         inline int getSocketfd() const noexcept { return _socketfd; }
