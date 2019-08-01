@@ -4,75 +4,64 @@
 #include "signer.h"
 
 
-int main() {
-    Sorokin::Signer _signer;
-    _signer.createKeyPair();
+    #define SIGNER_DEBUG
+    //#undef SIGNER_DEBUG
 
-    /*
-    Sorokin::Server _server;
-    if (_server.setSocket()) {
+    #define SERVER_DEBUG
+    //#undef SERVER_DEBUG
+
+int main() {
+#ifdef SIGNER_DEBUG
+    Sorokin::Signer _Signer;
+    _Signer.setKeyLoc("/home/student/C++/SSLServer/pub_key.key", "/home/student/C++/SSLServer/priv_key.key");
+    _Signer.createKeyPair(1024);
+    if (_Signer.getPwd()) {
+        return -1;
+    }
+#endif
+
+#ifdef SERVER_DEBUG
+    Sorokin::Server _Server;
+    if (_Server.setSocket()) {
         return -1;
     }
 
-    // Socket was succesfully created
-    if (!_server.setUpListener()) {
-        // Socket was succesfully binded
-        Sorokin::Slave _slave;
+    if (!_Server.setUpListener()) {
+        Sorokin::Slave _Slave;
+        if (!_Server.getConnection(_Slave.accessSocket())) {
+            std::string bufStr;
+            if (!_Slave.recvString(bufStr)) {
+                Sorokin::Parser _Parser;
+                if (!_Parser.loadDocument(bufStr)) {
+                    bufStr.clear();
 
-        if (!_server.getConnection(_slave.accessSocket())) {
-            // Connection was succesfully accepted
-            std::string someString = "";
+                    std::list<std::string> bufList;
+                    _Parser.parseDocument(bufList);
 
-            if (!_slave.recvString(someString)) {
-                // Document was succesfully recieved
-                Sorokin::Parser _xmlParser;
+                    std::string pubKey = _Signer.getPubKey();
 
-                if (!_xmlParser.loadDocument(someString)) {
-                    // Document was succesfully loaded
-                    std::list<std::string>* someList = nullptr;
-
-                    try {
-                        someList = _xmlParser.parseDocument();
+                    std::list<std::string> signedBufList;
+                    for (const auto& iter : bufList) {
+                        signedBufList.push_back(_Signer.signString(iter));
                     }
-                    catch (std::exception& error) {
-                        std::cout << error.what() << '\n';
-                    }
-                    if (someList != nullptr) {
-                        // Document was succesfully parsed
+                    bufList.clear();
 
-                        _slave.sendString(someString);
-                    }
-
-                    delete someList;
+                    bufStr = _Parser.rebuildDocument(signedBufList, pubKey);
                 }
 
-                _xmlParser.unloadDocument();
+                _Parser.unloadDocument();
+                _Slave.sendString(bufStr);
             }
 
-            _slave.closeConnection();
+            _Slave.closeConnection();
+            _Slave.deleteSocket();
         }
 
-        try {
-            _slave.deleteSocket();
-        }
-        catch (std::exception& error) {
-            std::cout << error.what() << '\n';
-        }
-        _server.closeConnection();
+        _Server.closeConnection();
     }
 
-    try {
-        _server.deleteSocket();
-    }
-    catch (std::exception& error) {
-        std::cout << error.what() << '\n';
-        return -1;
-    }
-    catch (...) {
-        std::cout << "Unknown error!\n";
-        return -1;
-    }
-    */
+    _Server.deleteSocket();
+#endif
 
     return 0;
 }

@@ -3,6 +3,11 @@
 
 #include "headers.h"
 
+#ifdef DEBUG
+    #define PARSER_DEBUG
+    // #undef PARSER_DEBUG
+#endif
+
 namespace Sorokin {
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -15,7 +20,7 @@ namespace Sorokin {
     public:
         /// @brief Return error types
         enum err {
-            unknownError = -1,
+            undefinedError = -1,
             noError = 0
         };
 
@@ -36,9 +41,13 @@ namespace Sorokin {
         /// @{
         /**
          * @brief parseDocument - parses loaded document
-         * @return list of concatinated fileds of client-nodes if no error occured, <nullptr> else
+         * @param[out] answerList list of concatinated fileds of client-nodes if no error occured
+         * @return 0 if no error occured, -1 otherwise
          */
-        std::list<std::string>* parseDocument() noexcept(false);
+        err parseDocument(std::list<std::string>& answerList) noexcept;
+        std::string rebuildDocument(const std::list<std::string>& sigList,
+                            const std::string& pubKey
+                            ) noexcept(false);
         /// @}
 
         /// @defgroup Parser_deleting_methods
@@ -63,9 +72,10 @@ namespace Sorokin {
         /// @{
         /**
          * @brief __fillList - reads xml-document and gets concatinated fields of a client-node
-         * @return list of concatinated fields of client-nodes
+         * @param[out] list of concatinated fields of client-nodes
+         * @return 0 if no error occured, -1 otherwise
          */
-        std::list<std::string>* __fillList() noexcept(false);
+        err __fillList(std::list<std::string>& answerList) noexcept(false);
         /**
          * @brief __getClientText parses client-node
          * @param[in] client - client node to parse

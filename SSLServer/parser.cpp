@@ -11,7 +11,7 @@ Parser::err Parser::loadDocument(const std::string& xmlDocument) noexcept {
     }
     catch (std::exception& error) {
         std::cout <<  error.what() << '\n';
-        return unknownError;
+        return undefinedError;
     }
 
     return noError;
@@ -26,7 +26,7 @@ Parser::err Parser::unloadDocument() noexcept {
     }
     catch (std::exception& error) {
         std::cout << error.what() << '\n';
-        return unknownError;
+        return undefinedError;
     }
 
     return noError;
@@ -34,36 +34,33 @@ Parser::err Parser::unloadDocument() noexcept {
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-std::list<std::string>* Parser::parseDocument() noexcept(false) {
+Parser::err Parser::parseDocument(list_str& answerList) noexcept {
     if (_xmlParser == nullptr) {
-        return nullptr;
+        return undefinedError;
     }
-
-    list_str* returnList = nullptr;
     try {
-        returnList = __fillList();
+         __fillList(answerList);
     }
     catch (std::exception& error) {
         std::cout << error.what() << '\n';
     }
 
-    return returnList;
+    return noError;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-std::list<std::string>* Parser::__fillList() noexcept(false) {
+Parser::err Parser::__fillList(list_str& answerList) noexcept(false) {
     const xmlpp::Element* root = _xmlParser->get_document()->get_root_node();
-    list_str* returnList = nullptr;
     if (root != nullptr) {
-        returnList = new list_str;
         for (const auto& possibleClient : root->get_children()) {
             if (const xmlpp::Element* client = dynamic_cast<const xmlpp::Element*>(possibleClient)) {
-                returnList->push_back(__getClientText(client));
+                answerList.push_back(__getClientText(client));
             }
         }
+        return noError;
     }
-    return returnList;
+    return undefinedError;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -75,7 +72,7 @@ std::string Parser::__getClientText(const xmlpp::Element *client) noexcept(false
             answerStr += text->get_child_text()->get_content().c_str();
         }
     }
-#ifdef DEBUG
+#ifdef PARSER_DEBUG
     std::cout << "Client str: " << answerStr << '\n';
 #endif
     return answerStr;
@@ -83,12 +80,10 @@ std::string Parser::__getClientText(const xmlpp::Element *client) noexcept(false
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-
-/*
-void Parser::rebuildDocument(const std::list<std::string>& signatures, const std::string& publicKey) noexcept {
+std::string Parser::rebuildDocument(const std::list<std::string>& sigList, const std::string& pubKey) noexcept(false) {
     xmlpp::Element* root = _xmlParser->get_document()->get_root_node();
     root->set_name("response");
-    auto iter = signatures.begin();
+    auto iter = sigList.begin();
     for (auto& possibleClient : root->get_children()) {
         if (xmlpp::Element* client = dynamic_cast<xmlpp::Element*>(possibleClient)) {
             xmlpp::Element* newNode = client->add_child("signature");
@@ -97,13 +92,14 @@ void Parser::rebuildDocument(const std::list<std::string>& signatures, const std
             client->add_child_text("\n\t\t");
             iter++;
             newNode = client->add_child("public_key");
-            newNode->add_child_text(publicKey);
+            newNode->add_child_text(pubKey);
             client->add_child_text("\n\t");
         }
     }
 
-    _xmlFile->clear();
-    *_xmlFile = _xmlParser->get_document()->write_to_string().c_str();
+    return std::string(_xmlParser->get_document()->write_to_string().c_str());
 }
-*/
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
 

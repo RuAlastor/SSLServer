@@ -4,6 +4,10 @@
 #include "headers.h"
 #include "sockets.h"
 
+#ifdef DEBUG
+    #define SLAVE_DEBUG
+    // #undef SLAVE_DEBUG
+#endif
 
 namespace Sorokin {
 
@@ -54,7 +58,7 @@ namespace Sorokin {
          * @brief closeConnection - closes connection on socket
          * @return 0 in no error occured, -1 else
          */
-        virtual err closeConnection() noexcept(false);
+        virtual err closeConnection() noexcept;
         /**
          * @brief deleteSocket - deletes <Socket> object
          * @throw std::exception if unable to delete Socket
@@ -74,7 +78,7 @@ namespace Sorokin {
          * @brief printCError - prints <errno> msg
          * @param preErrorMsg - msg which will be printed before <errno> msg
          */
-        void printCError(std::string preErrorMsg) noexcept(false);
+        void __printCError(std::string preErrorMsg) noexcept(false);
         /// @}
 
     private:

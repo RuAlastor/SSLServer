@@ -18,8 +18,7 @@ Server::err Server::setSocket(const int domain,
         return undefinedError;
     }
     if (_masterSocket->setSocket(domain, type, protocol) ||
-        _masterSocket->setSocketInfo(domain, ip, port)
-        ) {
+        _masterSocket->setSocketInfo(domain, ip, port)) {
         return undefinedError;
     }
     return noError;
@@ -27,17 +26,17 @@ Server::err Server::setSocket(const int domain,
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-Server::err Server::setUpListener() noexcept {
+Server::err Server::setUpListener() noexcept(false) {
     if (bind(_masterSocket->getSocketfd(),
-             reinterpret_cast<const sockaddr*>(_masterSocket->getSocketInfo()),
+             reinterpret_cast<const sockaddr*>(_masterSocket->getSocketInfo()), // Might throw
              sizeof(*(_masterSocket->getSocketInfo()))
              )) {
-        this->printCError("Can't bind the socket: ");
+        __printCError("Can't bind the socket: "); // Might throw
         return undefinedError;
     }
     std::cout << "Socket was succesfully binded!\n";
     if (listen(_masterSocket->getSocketfd(), 1)) {
-        this->printCError("Can't set socket to listen: ");
+        __printCError("Can't set socket to listen: "); // Might throw
         return undefinedError;
     }
     std::cout << "Socket was succesfully set to listen!\n";
@@ -57,10 +56,10 @@ Server::err Server::getConnection(Socket*& slaveSocket) noexcept(false) {
         return undefinedError;
     }
     slaveSocket->accessSocket() = accept(_masterSocket->getSocketfd(),
-                                      reinterpret_cast<sockaddr*>(slaveSocket->accessSocketInfo()),
+                                      reinterpret_cast<sockaddr*>(slaveSocket->accessSocketInfo()), // Might throw
                                       &slaveSocketSize);
     if (slaveSocket->getSocketfd() == -1) {
-        this->printCError("Failed to accept connection: ");
+        __printCError("Failed to accept connection: "); // Might throw
         return undefinedError;
     }
 
@@ -73,7 +72,7 @@ Server::err Server::getConnection(Socket*& slaveSocket) noexcept(false) {
 Server::err Server::closeConnection() noexcept(false) {
     if (_masterSocket->getSocketfd() != -1) {
         if (shutdown(_masterSocket->getSocketfd(), SHUT_RDWR) != 0) {
-            this->printCError("Can't shutdown connection: ");
+            __printCError("Can't shutdown connection: "); // Might throw error
             return undefinedError;
         }
     }
@@ -91,13 +90,13 @@ void Server::deleteSocket() noexcept(false) {
         std::cout << error.what() << '\n';
     }
 
-    delete _masterSocket;
+    delete _masterSocket; // Might throw
     _masterSocket = nullptr;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
-void Server::printCError(std::string preErrorMsg) noexcept(false) {
+void Server::__printCError(std::string preErrorMsg) noexcept(false) {
     error_t errorNum = errno;
     const size_t bufMsgSize = 256;
     char* bufMsg = new char[bufMsgSize];

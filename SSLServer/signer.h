@@ -3,37 +3,58 @@
 
 #include "headers.h"
 
+#ifdef DEBUG
+    #define SIGNER_DEBUG
+    // #undef SIGNER_DEBUG
+#endif
+
 namespace Sorokin {
 
 //-----------------------------------------------------------------------------------------------------------------------------
-
 
     class Signer {
 
     public:
         enum err {
-            unknownError = -1,
+            undefinedError = -1,
             noError = 0
         };
 
+        using RSA_ptr   = std::unique_ptr<RSA, decltype(&::RSA_free)>;
+        using BN_ptr    = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
+
     public:
         Signer() = default;
-        ~Signer() = default;
+        err createKeyPair(const unsigned int keyLength) noexcept(false);
+        err setKeyLoc(const char* pubKeyLoc, const char* privKeyLoc) noexcept;
 
-        err createKeyPair() noexcept(false);
+        err getPwd() noexcept(false);
+        std::string signString(const std::string& strToSign) noexcept(false);
+        std::string getPubKey() noexcept(false);
+
+        ~Signer() = default;
 
     private:
         std::string _pwd;
-        std::string _publicLoc;  // "/home/student/C++/public_key"
-        std::string _privateLoc; // "/home/student/C++/private_key"
+        std::string _publicLoc;
+        std::string _privateLoc;
 
     private:
+        err __getPrivateKey(RSA** key) noexcept;
         std::string __createPassword() noexcept(false);
         std::string __turnRawReadable(const unsigned char* signature,
                                       const unsigned int& signatureLength
                                       ) noexcept(false);
         err __writePassword(const std::string& pwd) noexcept(false);
-        err __createKeyPairs(const std::string& pwd) noexcept(false);
+        err __createKeyPairs(const std::string& pwd, const unsigned int& keyLength) noexcept(false);
+        bool __checkPwd() noexcept(false);
+
+    private:
+        /**
+         * @brief printCError - prints <errno> msg
+         * @param preErrorMsg - msg which will be printed before <errno> msg
+         */
+        void __printCError(std::string preErrorMsg) noexcept(false);
 
     private:
         Signer(const Signer&) = delete;

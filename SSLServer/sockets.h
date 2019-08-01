@@ -4,6 +4,11 @@
 
 #include "headers.h"
 
+#ifdef DEBUG
+    #define SOCKET_DEBUG
+    //#undef SOCKET_DEBUG
+#endif
+
 namespace Sorokin {
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -103,7 +108,7 @@ namespace Sorokin {
          *
          * You need to use <deleteSocketInfo> method before if previously you've already set it
          */
-        inline sockaddr_in*& accessSocketInfo()& noexcept(false) { return _socketInfo; }
+        inline sockaddr_in*& accessSocketInfo()& noexcept { return _socketInfo; }
         /**
          * @brief setSocket - creates an instance of <socket> structure
          * @param[in] domain - socket domain. Defines ip-protocol
@@ -141,7 +146,7 @@ namespace Sorokin {
         /// @brief deletes <sockaddr_in> structure
         void deleteSocketInfo() noexcept(false);
         /// @brief destroys descriptor
-        void closeDescriptor() noexcept(false);
+        err closeDescriptor() noexcept(false);
         /// @brief ~Socket - default destructor
         virtual ~Socket() noexcept = default;
         /// @}
@@ -157,9 +162,14 @@ namespace Sorokin {
          * @brief setNonBlock - sets current socket in a non-block state
          * @return 0 if no error occured, -1 else
          */
-        int setNonBlock() noexcept;
+        int __setNonBlock() noexcept;
         /// @brief throws <errno> msg
-        void throwCError() noexcept(false);
+        void __throwCError() noexcept(false);
+        /**
+         * @brief printCError - prints <errno> msg
+         * @param preErrorMsg - msg which will be printed before <errno> msg
+         */
+        void __printCError(std::string preErrorMsg) noexcept(false);
         /// @}
 
     private:

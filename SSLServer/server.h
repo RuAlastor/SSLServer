@@ -5,6 +5,11 @@
 #include "headers.h"
 #include "sockets.h"
 
+#ifdef DEBUG
+    #define SERVER_DEBUG
+    // #undef SERVER_DEBUG
+#endif
+
 namespace Sorokin {
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -26,6 +31,10 @@ namespace Sorokin {
         /// @{
         /// @brief Default constructor
         Server() noexcept : _masterSocket(nullptr) {}
+        /// @brief allows to set socket with already created object
+        /// @return reference to a pointer to the <Socket> structure
+        /// You need to use <deleteSocket> method before if <Socket> object was created previously
+        inline Socket*& accessSocket()& noexcept { return _masterSocket; }
         /**
          * @brief setSocket - creates socket with certain parametrs
          * @param[in] domain - socket domain. Defines ip-protocol
@@ -35,10 +44,6 @@ namespace Sorokin {
          * @param[in] port - server port
          * @return 0 if no error occured, -1 else
          */
-        /// @brief allows to set socket with already created object
-        /// @return reference to a pointer to the <Socket> structure
-        /// You need to use <deleteSocket> method before if <Socket> object was created previously
-        inline Socket*& accessSocket()& noexcept { return _masterSocket; }
         err setSocket(const int domain        = AF_INET,
                       const int type          = SOCK_STREAM,
                       const int protocol      = 0,
@@ -49,7 +54,7 @@ namespace Sorokin {
          * @brief setUpListener binds socket according to socket info and sets it to listen
          * @return 0 if no error occured, -1 else
          */
-        err setUpListener() noexcept;
+        err setUpListener() noexcept(false);
         /// @}
 
         /// @defgroup Server_working_methods
@@ -88,7 +93,7 @@ namespace Sorokin {
          * @brief printCError - prints <errno> msg
          * @param preErrorMsg - msg which will be printed before <errno> msg
          */
-        void printCError(std::string preErrorMsg) noexcept(false);
+        void __printCError(std::string preErrorMsg) noexcept(false);
         /// @}
 
     private:
