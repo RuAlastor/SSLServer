@@ -1,7 +1,26 @@
 #ifndef SIGNER_H
 #define SIGNER_H
 
-#include "headers.h"
+// General libs
+#include <iostream>
+#include <sstream>                      /// Needed to properly turn raw data into hex
+#include <iomanip>                      // Needed to properly turn raw data into hex
+#include <memory>                       /// Needed to properly work with OpenSSL ptr's
+#include <fstream>                      /// Needed to properly read public key
+#include <string>
+
+#include <errno.h>                      /// Needed to check errors in C-functions
+#include <string.h>                     /// Needed to transform error into readable state
+#include <unistd.h>                     /// Needed for close()
+#include <fcntl.h>                      /// Needed to make sockets non-block
+#include <stdio.h>                      /// Needed to use RSA functions
+
+// Security part
+#include <openssl/rsa.h>                /// Main OpenSSL libraries
+#include <openssl/md5.h>
+#include <openssl/pem.h>
+#include <openssl/err.h>
+#include <openssl/bn.h>
 
 #ifdef DEBUG
     #define SIGNER_DEBUG
@@ -65,37 +84,6 @@ namespace Sorokin {
     };
 
 //-----------------------------------------------------------------------------------------------------------------------------
-
-
-/*
-    class Signer {
-
-    public:
-
-        explicit Signer(const std::string pwd,
-                        const char* publicLoc = "/home/student/C++/public_key",
-                        const char* privateLoc = "/home/student/C++/private_key") noexcept;
-        ~Signer() noexcept = default;
-
-        Signer() = delete;
-        Signer(const Signer& other) = delete;
-        Signer(Signer&& other) = delete;
-        Signer& operator=(const Signer& other) = delete;
-        Signer& operator=(Signer&& other) = delete;
-
-        std::string SignString(const std::string& stringToSign) noexcept(false);
-        std::string GetPublicKey() noexcept(false);
-
-    private:
-        const std::string _pwd;
-        const char* _publicLoc;
-        const char* _privateLoc;
-
-        void getRSAKeys(RSA** keys) noexcept;
-        std::string turnSignReadable(const unsigned char* signature, const unsigned int& signatureLength) noexcept(false);
-
-    };
-*/
 
 }
 

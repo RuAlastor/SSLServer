@@ -1,7 +1,17 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "headers.h"
+// General libs
+#include <iostream>
+#include <string>
+#include <list>
+
+#include <errno.h>                      // Needed to check errors in C-functions
+#include <string.h>                     // Needed to transform error into readable state
+
+// Parser part
+#include <libxml++/libxml++.h>          /// Main xml-parser library
+#include <libxml2/libxml/parser.h>      /// Needed to clean up memory partially
 
 #ifdef DEBUG
     #define PARSER_DEBUG

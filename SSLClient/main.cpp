@@ -1,51 +1,12 @@
 #include "client.h"
 
-int verify(const std::string& strToVerify,
-           const std::string& signature,
-           const std::string& sigPubKey);
 
 int main() {
-    Sorokin::Client client("/home/student/C++/unsignedXML.xml",
-                           "/home/student/C++/signedXML.xml",
-                           12345);
-    try {
-        client.Start();
-        client.Handle();
-    }
-    catch (std::exception& error) {
-        std::cout << error.what() << '\n';
-        return -1;
-    }
-
-    std::list<std::string> signatures;
-    Sorokin::Parser parser("/home/student/C++/signedXML.xml", &signatures);
-    try {
-        parser.loadDocument();
-        parser.parseDocument();
-        parser.Clear();
-    }
-    catch (std::exception& error) {
-        std::cout << error.what() << '\n';
-        return -1;
-    }
-
-    for (auto iter = signatures.begin(); iter != signatures.end(); ++iter) {
-        std::string strToVerify = *iter;
-        iter++;
-        std::string signature = *iter;
-        iter++;
-        std::string sigPubKey = *iter;
-        if (verify(strToVerify, signature, sigPubKey)) {
-            std::cout << "Verified!\n";
-        }
-        else {
-            std::cout << "Wrong!\n";
-        }
-    }
 
     return 0;
 }
 
+/*
 int verify(const std::string &strToVerify,
            const std::string &signature,
            const std::string &sigPubKey) {
@@ -92,3 +53,4 @@ int verify(const std::string &strToVerify,
 
     return tmp;
 }
+*/

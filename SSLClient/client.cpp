@@ -2,6 +2,7 @@
 
 using namespace Sorokin;
 
+/*
 Client::Client(const char* filenameOut, const char* filenameIn, int port) noexcept : _filenameOut(filenameOut),
                                                                                      _filenameIn(filenameIn),
                                                                                      _ip(INADDR_LOOPBACK),
@@ -110,7 +111,7 @@ void Client::Get() noexcept(false) {
     xmlWriter.close();
 }
 
-
+*/
 
 
 

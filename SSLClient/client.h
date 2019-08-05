@@ -1,12 +1,34 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "headers.h"
-#include "exceptions.h"
-#include "parser.h"
+#include "SSLServer/sockets.h"
 
 namespace Sorokin {
 
+    class Client {
+
+    public:
+        enum err {
+            undefinedError = -1,
+            noError = 0
+        };
+
+    public:
+        Client() noexcept : _clientSocket(nullptr) {}
+
+        ~Client() = default;
+
+    private:
+        Socket* _clientSocket;
+
+    private:
+        Client(const Client&) = delete;
+        Client(Client&&) = delete;
+        Client& operator =(const Client&) = delete;
+        Client& operator =(Client&&) = delete;
+    };
+
+    /*
     class Client {
 
     public:
@@ -34,6 +56,7 @@ namespace Sorokin {
         void Get() noexcept(false);
 
     };
+    */
 
 }
 

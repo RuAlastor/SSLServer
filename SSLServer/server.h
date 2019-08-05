@@ -2,7 +2,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "headers.h"
 #include "sockets.h"
 
 #ifdef DEBUG

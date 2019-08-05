@@ -41,7 +41,9 @@ std::string Signer::signString(const std::string& strToSign) noexcept(false) {
         std::cout << "Can't get RSA Keys!\n";
         return "";
     }
+#ifdef SIGNER_DEBUG
     std::cout << "Got private key!\n";
+#endif
 
     RSA_ptr rsa(tmpRSA, ::RSA_free);
     tmpRSA = nullptr;

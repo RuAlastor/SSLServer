@@ -16,7 +16,6 @@ unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += libssl
 
 HEADERS += \
-    headers.h \
     parser.h \
     signer.h \
     sockets.h \

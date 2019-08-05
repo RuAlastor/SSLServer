@@ -1,8 +1,19 @@
 /// @file Socket.h - socket object module
-#ifndef MASTERSERVER_H
-#define MASTERSERVER_H
+#ifndef SOCKET_H
+#define SOCKET_H
 
-#include "headers.h"
+// General libs
+#include <iostream>
+
+#include <unistd.h>                     /// Needed for close()
+#include <fcntl.h>                      /// Needed to make sockets non-block
+#include <errno.h>                      // Needed to check errors in C-functions
+#include <string.h>                     // Needed to transform error into readable state
+
+// Server libs
+#include <sys/socket.h>                 /// Main posix-socket library
+#include <sys/types.h>                  /// Main posix-socket library
+#include <netinet/in.h>                 /// Needed for proper ip and port reading
 
 #ifdef DEBUG
     #define SOCKET_DEBUG
@@ -190,4 +201,4 @@ namespace Sorokin {
 
 }
 
-#endif // MASTERSERVER_H
+#endif // SOCKET_H

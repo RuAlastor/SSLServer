@@ -1,7 +1,6 @@
 #ifndef SLAVE_H
 #define SLAVE_H
 
-#include "headers.h"
 #include "sockets.h"
 
 #ifdef DEBUG
