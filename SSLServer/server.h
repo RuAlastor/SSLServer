@@ -4,11 +4,6 @@
 
 #include "sockets.h"
 
-#ifdef DEBUG
-    #define SERVER_DEBUG
-    // #undef SERVER_DEBUG
-#endif
-
 namespace Sorokin {
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -16,17 +11,22 @@ namespace Sorokin {
     /**
      * @brief The Server class - implementation of master-socket manager
      */
-    class Server {
+    class Server
+    {
 
-    public:
+    public VARIABLES:
         /// @brief Return error types
-        enum err {
-            undefinedError = -1,
-            noError = 0
+        enum err
+        {
+            listenError     = -4,
+            bindError       = -3,
+            bad_alloc       = -2,
+            undefinedError  = -1,
+            noError         = 0
         };
 
-    public:
-        /// @defgroup Server_setup_methods
+    public METHODS:
+        /// @defgroup SERVER_SETTERS
         /// @{
         /// @brief Default constructor
         Server() noexcept : _masterSocket(nullptr) {}
@@ -43,27 +43,23 @@ namespace Sorokin {
          * @param[in] port - server port
          * @return 0 if no error occured, -1 else
          */
-        err setSocket(const int domain        = AF_INET,
-                      const int type          = SOCK_STREAM,
-                      const int protocol      = 0,
-                      const in_addr_t ip      = INADDR_LOOPBACK,
-                      const int port          = 12345
-                      ) noexcept;
+        err setSocket(const int domain, const int type, const int protocol,
+                                        const in_addr_t ip, const int port ) noexcept;
         /**
          * @brief setUpListener binds socket according to socket info and sets it to listen
          * @return 0 if no error occured, -1 else
          */
-        err setUpListener() noexcept(false);
+        err setUpListener() noexcept;
         /// @}
 
-        /// @defgroup Server_working_methods
+        /// @defgroup SERVER_MAIN
         /// @{
         /**
          * @brief getConnection sets up connection with a client
          * @param[out] slaveSocket - descriptor connected to the client
          * @return 0 if no error occured, -1 else
          */
-        err getConnection(Socket*& slaveSocket) noexcept(false);
+        err getConnection(Socket*& slaveSocket) const noexcept;
         /// @}
 
         /// @defgroup Server_closing_methods
@@ -72,40 +68,40 @@ namespace Sorokin {
          * @brief closeConnection - closes connection
          * @return 0 if no error occured, -1 else
          */
-        err closeConnection() noexcept(false);
+        err closeConnection() noexcept;
         /**
          * @brief deleteSocket - destroys socket descriptor
          * @throw std::exception if unable to destroy descriptor
          */
-        void deleteSocket() noexcept(false);
+        void deleteSocket() noexcept;
         /// @brief Default destructor
         ~Server() = default;
         /// @}
 
-    private:
+    private VARIABLES:
         Socket* _masterSocket;
 
-    private:
-        /// @defgroup Server_additional_methods
+    private METHODS:
+        /// @defgroup SERVER_ADDITIONAL
         /// @{
         /**
          * @brief printCError - prints <errno> msg
          * @param preErrorMsg - msg which will be printed before <errno> msg
          */
-        void __printCError(std::string preErrorMsg) noexcept(false);
+        void __printCError(const std::string& preErrorMsg) const noexcept;
         /// @}
 
-    private:
-        /// @defgroup Server_deleted_methods
+    private METHODS:
+        /// @defgroup SERVER_DELETED
         /// @{
         /// Deleted copy constructor
-        Server(const Server&) = delete;
+        Server(const Server&)               = delete;
         /// Deleted move constructor
-        Server(Server&&) = delete;
+        Server(Server&&)                    = delete;
         /// Deleted copy assigner
-        Server& operator =(const Server&) = delete;
+        Server& operator =(const Server&)   = delete;
         /// Deleted move assigner
-        Server& operator =(Server&&) = delete;
+        Server& operator =(Server&&)        = delete;
         /// @}
 
     };

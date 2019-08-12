@@ -3,26 +3,29 @@
 #include "parser.h"
 #include "signer.h"
 
+// domain = AF_INET
+// type = SOCK_STREAM
+// protocol = 0
+// ip = INADDR_LOOPBACK
+// port = 12345
 
-    #define SIGNER_DEBUG
-    //#undef SIGNER_DEBUG
+#define SIGNER_DEBUG
+//#undef SIGNER_DEBUG
 
-    #define SERVER_DEBUG
-    //#undef SERVER_DEBUG
+#define SERVER_DEBUG
+//#undef SERVER_DEBUG
 
 int main() {
 #ifdef SIGNER_DEBUG
     Sorokin::Signer _Signer;
     _Signer.setKeyLoc("/home/student/C++/SSLServer/pub_key.key", "/home/student/C++/SSLServer/priv_key.key");
-    _Signer.createKeyPair(1024);
-    if (_Signer.getPwd()) {
-        return -1;
-    }
+    //_Signer.createKeyPair(1024);
+    if (_Signer.getPwd()) { return -1; }
 #endif
 
 #ifdef SERVER_DEBUG
     Sorokin::Server _Server;
-    if (_Server.setSocket()) {
+    if (_Server.setSocket( AF_INET, SOCK_STREAM, 0, INADDR_LOOPBACK, 12345 ) ) {
         return -1;
     }
 

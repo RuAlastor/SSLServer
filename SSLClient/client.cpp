@@ -2,6 +2,67 @@
 
 using namespace Sorokin;
 
+//-----------------------------------------------------------------------------------------------------------------------------
+
+void Client::__printCError(std::string& preErrorMsg) noexcept(false) {
+    error_t errorNum = errno;
+    const size_t bufMsgSize = 256;
+    char* bufMsg = new char[bufMsgSize];
+    bufMsg[0] = '\0';
+    char* errorMsg = nullptr;
+
+    errorMsg = strerror_r(errorNum, bufMsg, bufMsgSize);
+    std::cout << preErrorMsg << errorMsg << '\n';
+
+    delete[] bufMsg;
+    bufMsg = nullptr;
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+Client::err Client::start(const int domain      /* = AF_INET */,
+                          const int type        /* = SOCK_STREAM */,
+                          const int protocol    /* = 0 */,
+                          const in_addr_t ip    /* = INADDR_LOOPBACK */,
+                          const int port        /* = 12345 */
+                          ) noexcept
+{
+    try { Slave::_slaveSocket = new Socket; }
+    catch ( const std::bad_alloc& error)
+    {
+        std::cout << error.what() << '\n';
+        return undefinedError;
+    }
+    catch (...)
+    {
+        std::cout << "Undefined error!\n";
+        return undefinedError;
+    }
+
+    if ( Slave::_slaveSocket->setSocket( domain, type, protocol ) != Socket::noError ) return undefinedError;
+    if ( Slave::_slaveSocket->setSocketInfo( domain, ip, port ) != Socket::noError )
+    {
+        Slave::_slaveSocket->closeDescriptor();
+        return undefinedError;
+    }
+
+    if ( connect( Slave::_slaveSocket->getSocketfd(),
+                  reinterpret_cast<const sockaddr*>( Slave::_slaveSocket->getSocketInfo() ),
+                  sizeof( Slave::_slaveSocket->getSocketInfo() )
+                  ) )
+    {
+        Slave::_slaveSocket->deleteSocketInfo();
+        Slave::_slaveSocket->closeDescriptor();
+        return undefinedError;
+    }
+
+    std::cout << "Connected to the server!\n";
+    return noError;
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+
 /*
 Client::Client(const char* filenameOut, const char* filenameIn, int port) noexcept : _filenameOut(filenameOut),
                                                                                      _filenameIn(filenameIn),

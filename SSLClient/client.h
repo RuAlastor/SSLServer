@@ -1,11 +1,11 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "SSLServer/sockets.h"
+#include "SSLServer/slave.h"
 
 namespace Sorokin {
 
-    class Client {
+    class Client : private Slave {
 
     public:
         enum err {
@@ -14,18 +14,25 @@ namespace Sorokin {
         };
 
     public:
-        Client() noexcept : _clientSocket(nullptr) {}
+        Client() noexcept = default;
+
+        err start(const int domain      = AF_INET,
+                  const int type        = SOCK_STREAM,
+                  const int protocol    = 0,
+                  const in_addr_t ip    = INADDR_LOOPBACK,
+                  const int port        = 12345
+                  ) noexcept;
 
         ~Client() = default;
 
     private:
-        Socket* _clientSocket;
+        void __printCError(std::string& preErrorMsg) noexcept(false);
 
     private:
-        Client(const Client&) = delete;
-        Client(Client&&) = delete;
-        Client& operator =(const Client&) = delete;
-        Client& operator =(Client&&) = delete;
+        Client(const Client&)               = delete;
+        Client(Client&&)                    = delete;
+        Client& operator =(const Client&)   = delete;
+        Client& operator =(Client&&)        = delete;
     };
 
     /*

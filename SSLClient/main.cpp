@@ -2,6 +2,8 @@
 
 
 int main() {
+    Sorokin::Client Client;
+    Client.start();
 
     return 0;
 }
